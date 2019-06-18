@@ -1,5 +1,3 @@
-cd node_modules/bracket-data
-npm run bracketology
-cd ../../
+npm run getCurrentField
 python scrape.py
 python bracket.py
