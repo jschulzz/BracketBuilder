@@ -431,7 +431,6 @@ def efficiencyMarginWithSOS(t1, t2, field):
 
 
 def getScores(t1, t2, writePaths, depth):
-    score = 0
     if t1 not in list(data.keys()):
         # print("replacing", t1)
         t1 = replace(t1)
@@ -451,18 +450,15 @@ def getScores(t1, t2, writePaths, depth):
 
 
 if __name__ == "__main__":
-    s = sys.argv[1]
-    d = s
+    team1 = sys.argv[1]
+    team2 = team1
     if(len(sys.argv) > 2):
-        d = sys.argv[2]
+        team2 = sys.argv[2]
     others = []
     score = 0
-    # s_score, d_score = getScores(s, d, True, 5)
-    s_score, d_score, c = machineLearning(s, d, 1)
-    losing_score = round((1 - c) * 1000)/10
-    # losing_score = 100 - c
-    if s_score > d_score:
-        print(s, "over", d, "by", 100 * c, "-", losing_score)
+    team1_score, team2_score, chance = machineLearning(team1, team2, None)
+    losing_score = round((1 - chance) * 1000)/10
+    if team1_score > team2_score:
+        print(team1, "over", team2, "by", 100 * chance, "-", losing_score)
     else:
-        print(d, "over", s, "by", 100 * c, "-", losing_score)
-    # print(d, "over", s, "by", d_score)
+        print(team2, "over", team1, "by", 100 * chance, "-", losing_score)
