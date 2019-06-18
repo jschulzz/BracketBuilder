@@ -8,6 +8,11 @@ browser = webdriver.Chrome("C:\chromedriver.exe")
 baseUrl = "https://www.sports-reference.com/"
 result_dict = {}
 
+# This file goes through every team that appeared in a game and pulls the data seen below
+# The issue is I always had to re-run it when I had a new datapoint idea
+# TODO: Maybe store the entire html and then parse that as needed?
+# would be a lot faster than having to pull each page each new idea
+
 
 def transformTeamName(t):
     switches = {

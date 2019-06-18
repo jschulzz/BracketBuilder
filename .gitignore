@@ -3,4 +3,6 @@
 /node_modules
 *.png
 *.json
+!package.json
 *.hdf5
+/debug.log

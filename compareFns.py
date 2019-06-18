@@ -4,13 +4,13 @@ from collections import defaultdict
 from statistics import mean
 import json
 import sys
-# import urllib
 import train
 import re
 import random
 import numpy as np
 from functools import reduce
 
+# TODO: What if these were all seperate objects, containing the function, and the reasoning?
 
 def printpath(data_point):
     path = data_point[0]
@@ -21,6 +21,7 @@ def printpath(data_point):
     print()
 
 
+# TODO: refactor this to look like the other functions
 def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
     score = 0
     queue = []
@@ -146,7 +147,6 @@ def thiccestPlayer(t1, t2, field):
     weights2 = data[t2]["weights"]
     big1 = max(weights1)
     big2 = max(weights2)
-    # std2 = np.std(jerseyNums2)
     return big1, big2, max(big1/(big1+big2), big2/(big1+big2))
 
 
@@ -159,7 +159,6 @@ def thiccestStarters(t1, t2, field):
     weights2 = data[t2]["weights"][:5]
     big1 = mean(weights1)
     big2 = mean(weights2)
-    # std2 = np.std(jerseyNums2)
     return big1, big2, max(big1/(big1+big2), big2/(big1+big2))
 
 
@@ -170,14 +169,12 @@ def machineLearning(team1name, team2name, field):
         team2name = replace(team2name)
     t1 = data[team1name]
     t2 = data[team2name]
-    # print(t1, t2)
     input_list = train.createInputList(t1, t2)
     model = train.createModel(len(input_list))
 
     model.load_weights("weights-improvement-85-0.4550-0.5646.hdf5")
     prediction = model.predict(np.expand_dims(input_list, axis=0))[0][0]
     if prediction > 0.5:
-        # print( 100 - round(100 * prediction), round(100 * prediction), max(prediction, 1-prediction))
         return 0, 1, round(max(prediction, 1-prediction) * 1000)/1000
     return 1, 0, round(max(prediction, 1-prediction) * 1000)/1000
 
@@ -191,7 +188,6 @@ def shortestStarters(t1, t2, field):
     weights2 = data[t2]["heights"][:5]
     small1 = min(weights1)
     small2 = min(weights2)
-    # std2 = np.std(jerseyNums2)
     return small1, small2, max(small1/(small1+small2), small2/(small1+small2))
 
 
@@ -209,15 +205,12 @@ def closestAvgHometown(t1, t2, field):
         searchfor(t1), addressdetails=True, timeout=10)
     school2 = geolocator.geocode(
         searchfor(t2), addressdetails=True, timeout=10)
-    # print(searchfor(t1), searchfor(t2))
-    # print(school1, school2)
     if school1.raw["address"]["country_code"] != "us":
         print(school1)
     if school2.raw["address"]["country_code"] != "us":
         print(school2)
     locs1 = list(map(lambda x: geolocator.geocode(x, timeout=10), homes1))
     locs2 = list(map(lambda x: geolocator.geocode(x, timeout=10), homes2))
-    # print(t1, t2, locs1, locs2)
     avgLat1 = reduce(lambda x, y: x + y,
                      list(map(lambda x: x.latitude if x != None else 39.86, locs1))) / 5
     avgLon1 = reduce(lambda x, y: x + y,
@@ -231,10 +224,6 @@ def closestAvgHometown(t1, t2, field):
     s1 = (school1.latitude, school1.longitude)
     s2 = (school2.latitude, school2.longitude)
 
-    # small1 = min(weights1)
-    # print(avg1, avg2, s1, s2)
-    # small2 = min(weights2)
-    # std2 = np.std(jerseyNums2)
     res1 = distance.distance(avg1, s1).miles
     res2 = distance.distance(avg2, s2).miles
     return res1, res2, max(res1/(res1+res2), res2/(res1+res2))
@@ -262,11 +251,6 @@ def closestToGame(t1, t2, field, site):
     s1 = (school1.latitude, school1.longitude)
     s2 = (school2.latitude, school2.longitude)
     site_coords = (site_loc.latitude, site_loc.longitude)
-
-    # small1 = min(weights1)
-    # print(avg1, avg2, s1, s2)
-    # small2 = min(weights2)
-    # std2 = np.std(jerseyNums2)
     res1 = distance.distance(site_coords, s1).miles
     res2 = distance.distance(site_coords, s2).miles
     return res1, res2, max(res1/(res1+res2), res2/(res1+res2))
@@ -281,7 +265,6 @@ def tallestStarters(t1, t2, field):
     weights2 = data[t2]["heights"][:5]
     small1 = max(weights1)
     small2 = max(weights2)
-    # std2 = np.std(jerseyNums2)
     return small1, small2, max(small1/(small1+small2), small2/(small1+small2))
 
 
@@ -294,7 +277,6 @@ def avgHeight(t1, t2, field):
     heights2 = data[t2]["heights"]
     small1 = mean(heights1)
     small2 = mean(heights2)
-    # std2 = np.std(jerseyNums2)
     return small1, small2, max(small1/(small1+small2), small2/(small1+small2))
 
 
@@ -408,23 +390,7 @@ def efficiencyMarginWithSOS(t1, t2, field):
     sos1 = data[t1]["sos"]
     sos2 = data[t2]["sos"]
     # print(sos1, sos2)
-    # random.seed()
-    # if random.randint(1, 101) < 25:
-    #     off1 += 15
-    # if random.randint(1, 101) < 25:
-    #     off2 += 15
-    # if random.randint(1, 101) < 12.5:
-    #     off1 -= 15
-    # if random.randint(1, 101) < 12.5:
-    #     off2 -= 15
-    # if random.randint(1, 101) < 8.64:
-    #     def1 += 15
-    # if random.randint(1, 1) < 8.64:
-    #     def2 += 15
-    # if random.randint(1, 101) < 4.371:
-    #     def1 -= 15
-    # if random.randint(1, 101) < 4.371:
-    #     def2 -= 15
+	# would be nice to include someway of saying "if team gets hot, they win"
     res1 = ((off1 * sos1) + (sos2 * def2))/2
     res2 = ((off2 * sos2) + (sos1 * def1))/2
     return res1, res2, max(res1/(res1+res2), res2/(res1+res2))
@@ -432,10 +398,8 @@ def efficiencyMarginWithSOS(t1, t2, field):
 
 def getScores(t1, t2, writePaths, depth):
     if t1 not in list(data.keys()):
-        # print("replacing", t1)
         t1 = replace(t1)
     if t2 not in list(data.keys()):
-        # print("replacing", t2)
         t2 = replace(t2)
     s_idx = list(data.keys()).index(t1)
     d_idx = list(data.keys()).index(t2)
