@@ -3,17 +3,16 @@ from selenium import webdriver
 import time
 import json
 
-browser = webdriver.Chrome("C:\chromedriver.exe")
+browser = webdriver.Chrome("C:/chromedriver.exe")
 baseUrl = "https://www.sports-reference.com/cbb/boxscores/index.cgi?"
 result_dict = {}
 
 for year in range(2018, 2020):
+    start_month = 1
+    end_month = 4
     if year == 2018:
         start_month = 11
         end_month = 12
-    else:
-        start_month = 1
-        end_month = 4
     for month in range(start_month, end_month + 1):
         for day in range(1, 32):
             url = baseUrl

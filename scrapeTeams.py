@@ -18,7 +18,6 @@ def transformTeamName(t):
     switches = {
         "UCF": "Central Florida",
         "Penn": "Pennsylvania",
-        "Penn": "Pennsylvania",
         "Central Connecticutt": "Central Connecticutt State",
         "LIU-Brooklyn": "Long Island University",
         "UMass": "Massachusetts",
