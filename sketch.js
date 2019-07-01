@@ -2,6 +2,9 @@ let data;
 let logo;
 
 // TODO: revisit this, seems very clunky and non-intuitive
+// Maybe even redo this in React? 
+// If I want to make it interactive (i.e. the user can override matchups), i'd have to make API calls to the server to re-calculate matchups
+// it's not worth precalculating all matchups
 
 let x_divisions = {
 	"64": 50,
@@ -12,7 +15,7 @@ let x_divisions = {
 };
 function preload() {
 	data = loadJSON("result_bracket.json");
-	logo = loadImage("logo.png");
+	logo = loadImage("images/logo.png");
 	console.log(data);
 }
 function setup() {
