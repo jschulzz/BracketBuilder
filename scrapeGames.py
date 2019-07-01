@@ -3,7 +3,7 @@ from selenium import webdriver
 import time
 import json
 
-browser = webdriver.Chrome("C:/chromedriver.exe")
+browser = webdriver.Chrome("chromedriver")
 baseUrl = "https://www.sports-reference.com/cbb/boxscores/index.cgi?"
 result_dict = {}
 

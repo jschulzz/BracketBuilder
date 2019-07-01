@@ -7,7 +7,7 @@ const findTeam = (all_teams: Team[], team_name: string): Team => {
 const pythonTeamtoTeam = (team: PythonBracketTeam): Team => {
 	return {
 		seed: team.seed,
-		name: team.team,
+		name: team.name,
 		parent_match: null
 	};
 };
@@ -37,7 +37,7 @@ const findParentMatch = (
 		winner: copyTeam(thisTeam),
 		loser: getOpponenetInRound(data, thisTeam, thisRound),
 		likelihood: data[thisRound].filter(
-			(team: PythonBracketTeam) => team.team === thisTeam.name
+			(team: PythonBracketTeam) => team.name === thisTeam.name
 		)[0].matchup_chance
 	};
 };
@@ -63,7 +63,7 @@ const getOpponenetInRound = (
 	round: string
 ): Team => {
 	const index = data[round].findIndex((team: PythonBracketTeam) => {
-		return team.team === thisTeam.name;
+		return team.name === thisTeam.name;
 	});
 	const opponentIndex = index + (index % 2 === 0 ? 1 : -1);
 	const opponent = data[round][opponentIndex];
@@ -77,7 +77,7 @@ const didMakeToNextRound = (
     
 ) => {
 	const next_round_name = getNextRound(round_name);
-	return data[next_round_name].find((team: any) => team.team === team_name);
+	return data[next_round_name].find((team: PythonBracketTeam) => team.name === team_name);
 };
 
 export const transformBracketData = (data: PythonBracketData) => {
@@ -86,7 +86,7 @@ export const transformBracketData = (data: PythonBracketData) => {
 	data.round_of_64.forEach((team: any) => {
 		all_teams.push(pythonTeamtoTeam(team));
 	});
-	const overall_winner = findTeam(all_teams, data.round_of_1[0].team);
+	const overall_winner = findTeam(all_teams, data.round_of_1[0].name);
 	const runner_up = getOpponenetInRound(data, overall_winner, "round_of_2");
 	bracket.championship = {
 		winner: overall_winner,

@@ -15,5 +15,5 @@ export interface PythonBracketTeam {
 	matchup_chance: number;
 	overall_chance: number;
 	seed: number;
-	team: string;
+	name: string;
 }
