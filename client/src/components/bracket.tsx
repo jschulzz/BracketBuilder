@@ -4,6 +4,7 @@ import { PythonBracketData, Game } from "../types/types";
 import TeamCard from "./team-card";
 import { ArcherContainer } from "react-archer";
 import "./bracket.css";
+import { GameTree } from "./game-tree";
 
 const getMatchups = (data: Game, games: Game[]): Game[] => {
 	games.push(data);
@@ -23,8 +24,12 @@ const Bracket = ({ teamData }: bracketProps) => {
 	console.log(allMatchups);
 	return (
 		<ArcherContainer>
-			<div className="champion">
+			{/* <div className="champion">
 				<TeamCard team={transformedData.championship.winner} />;
+			</div> */}
+			<div className="champion">
+				{/* <TeamCard team={transformedData.championship.winner} />; */}
+				<GameTree game={transformedData.championship} />
 			</div>
 		</ArcherContainer>
 	);

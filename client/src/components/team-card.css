@@ -1,15 +1,16 @@
 .winner {
-	color: green;
-    left: 75%;
-    margin-left: -75%;
-    /* float:right; */
-	/* padding -bottom: 1%; */
+  color: green;
+  margin-left: -75%;
+  /* float:right; */
+  /* padding -bottom: 1%; */
 }
 .loser {
-    color: red;
-    /* float:right; */
-	left: 75%;
-	margin-left: -75%;
-	/* padding -bottom: -1%; */
+  color: red;
+  /* float:right; */
+  margin-left: -75%;
+  /* padding -bottom: -1%; */
 }
 
+.team-name {
+  width: 20%;
+}

@@ -1,28 +1,26 @@
 {
-	"name": "bracket-building",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"start": "cd client && npm start",
-		"getBracket": "node ./node_modules/bracket-data/build/bracketology.js -s ncaam > bracketology.json",
-		"getTeams": "python scrapeGames.py && python scrapeTeams.py"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/jschulzz/BracketBuilder.git"
-	},
-	"author": "",
-	"license": "ISC",
-	"dependencies": {
-		"@types/atlaskit__button": "^6.4.2",
-		"bracket-data": "^4.6.0",
-		"cheerio": "^1.0.0-rc.2",
-		"http-server": "^0.11.1",
-		"lodash": "^4.17.11",
-		"minimist": "^1.2.0",
-		"p5": "^0.7.3",
-		"request": "^2.88.0",
-		"styled-components": "^4.3.2"
-	}
+  "name": "bracket-building",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd client && npm start",
+    "getBracket": "node ./node_modules/bracket-data/build/bracketology.js -s ncaam > bracketology.json",
+    "getTeams": "python scrapeGames.py && python scrapeTeams.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jschulzz/BracketBuilder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bracket-data": "^4.6.0",
+    "cheerio": "^1.0.0-rc.2",
+    "http-server": "^0.11.1",
+    "lodash": "^4.17.11",
+    "minimist": "^1.2.0",
+    "p5": "^0.7.3",
+    "request": "^2.88.0"
+  }
 }

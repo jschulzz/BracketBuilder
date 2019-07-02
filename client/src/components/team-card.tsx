@@ -38,13 +38,13 @@ const TeamCard = ({ team }: teamCardProps) => {
 	// } `;
 	return (
 		<React.Fragment>
-			{team.parent_match && (
+			{/* {team.parent_match && (
 				<div>
 					<div className={firstClasses}>
 						<TeamCard team={firstTeam} />
 					</div>
 				</div>
-			)}
+			)} */}
 			<div className={`team-name`}>
 				<ArcherElement
 					id={`${team.name}-${
@@ -56,18 +56,11 @@ const TeamCard = ({ team }: teamCardProps) => {
 						team.parent_match
 							? [
 									{
-										targetId: `${team.parent_match.winner.name}-${
-											team.parent_match.round
+										targetId: `${team.name}-${
+											getNextRound(getNextRound(team.parent_match.round))
 										}`,
-										sourceAnchor: "left",
-										targetAnchor: "right"
-									},
-									{
-										targetId: `${team.parent_match.loser.name}-${
-											team.parent_match.round
-										}`,
-										sourceAnchor: "left",
-										targetAnchor: "right"
+										sourceAnchor: "right",
+										targetAnchor: "left"
 									}
 							  ]
 							: []
@@ -76,13 +69,13 @@ const TeamCard = ({ team }: teamCardProps) => {
 					<Tag text={`${team.name} (${team.seed})`} />
 				</ArcherElement>
 			</div>
-			{team.parent_match && (
+			{/* {team.parent_match && (
 				<div>
 					<div className={secondClasses}>
 						<TeamCard team={secondTeam} />
 					</div>
 				</div>
-			)}
+			)} */}
 		</React.Fragment>
 	);
 };
