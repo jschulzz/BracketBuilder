@@ -1,7 +1,9 @@
 export interface Game {
 	winner: Team;
 	loser: Team;
-	likelihood: number;
+    likelihood: number;
+    round: string,
+    game_index: number
 }
 export interface Team {
 	seed: number;

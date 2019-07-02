@@ -1,16 +1,37 @@
 import React from "react";
 import { transformBracketData } from "../transformers/bracket.transformer";
-import {PythonBracketData} from '../types/types'
+import { PythonBracketData, Game } from "../types/types";
 import TeamCard from "./team-card";
+import { ArcherContainer } from "react-archer";
+import "./bracket.css";
 
-const Bracket = ({ teamData }:bracketProps) => {
-	const transformedData = transformBracketData(teamData)
+const getMatchups = (data: Game, games: Game[]): Game[] => {
+	games.push(data);
+	if (data.winner.parent_match) {
+		games = getMatchups(data.winner.parent_match, games);
+	}
+	if (data.loser.parent_match) {
+		games = getMatchups(data.loser.parent_match, games);
+	}
+	return games;
+};
 
-	return <div>BRACKET!</div>;
+const Bracket = ({ teamData }: bracketProps) => {
+	const transformedData = transformBracketData(teamData);
+	console.log(transformedData);
+	const allMatchups = getMatchups(transformedData.championship, []);
+	console.log(allMatchups);
+	return (
+		<ArcherContainer>
+			<div className="champion">
+				<TeamCard team={transformedData.championship.winner} />;
+			</div>
+		</ArcherContainer>
+	);
 };
 
 interface bracketProps {
-    teamData: PythonBracketData,
+	teamData: PythonBracketData;
 }
 
 export default Bracket;

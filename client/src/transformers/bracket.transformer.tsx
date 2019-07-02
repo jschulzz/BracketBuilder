@@ -1,4 +1,9 @@
-import {Game, Team, PythonBracketData, PythonBracketTeam} from '../types/types'
+import {
+	Game,
+	Team,
+	PythonBracketData,
+	PythonBracketTeam
+} from "../types/types";
 
 const findTeam = (all_teams: Team[], team_name: string): Team => {
 	return all_teams.filter((team: Team) => team.name === team_name)[0];
@@ -12,10 +17,10 @@ const pythonTeamtoTeam = (team: PythonBracketTeam): Team => {
 	};
 };
 
-const getPreviousRound = (round: string): string => {
+export const getPreviousRound = (round: string): string => {
 	return "round_of_" + Number(round.split("_")[2]) * 2;
 };
-const getNextRound = (round: string): string => {
+export const getNextRound = (round: string): string => {
 	return "round_of_" + Number(round.split("_")[2]) / 2;
 };
 
@@ -38,7 +43,9 @@ const findParentMatch = (
 		loser: getOpponenetInRound(data, thisTeam, thisRound),
 		likelihood: data[thisRound].filter(
 			(team: PythonBracketTeam) => team.name === thisTeam.name
-		)[0].matchup_chance
+        )[0].matchup_chance,
+        round: thisRound,
+        game_index: Math.floor(data[thisRound].findIndex((team) => team.name === thisTeam.name)/2)
 	};
 };
 
@@ -47,7 +54,6 @@ const calculateParents = (
 	data: PythonBracketData,
 	round: string
 ) => {
-	console.log("finding parents of a Round", round, "Matchup");
 	const previousRound = getPreviousRound(round);
 	game.winner.parent_match = findParentMatch(data, previousRound, game.winner);
 	game.loser.parent_match = findParentMatch(data, previousRound, game.loser);
@@ -73,28 +79,30 @@ const getOpponenetInRound = (
 const didMakeToNextRound = (
 	data: PythonBracketData,
 	round_name: string,
-    team_name: string
-    
+	team_name: string
 ) => {
 	const next_round_name = getNextRound(round_name);
-	return data[next_round_name].find((team: PythonBracketTeam) => team.name === team_name);
+	return data[next_round_name].find(
+		(team: PythonBracketTeam) => team.name === team_name
+	);
 };
 
-export const transformBracketData = (data: PythonBracketData) => {
-	let bracket: { championship: Game | null } = { championship: null };
+export const transformBracketData = (
+	data: PythonBracketData
+): { championship: Game } => {
 	let all_teams: Team[] = [];
 	data.round_of_64.forEach((team: any) => {
 		all_teams.push(pythonTeamtoTeam(team));
 	});
 	const overall_winner = findTeam(all_teams, data.round_of_1[0].name);
 	const runner_up = getOpponenetInRound(data, overall_winner, "round_of_2");
-	bracket.championship = {
+	const championship  = {
 		winner: overall_winner,
 		loser: runner_up,
-		likelihood: data.round_of_1[0].matchup_chance
+        likelihood: data.round_of_1[0].matchup_chance,
+        round: "round_of_2",
+        game_index: 0
 	};
-	calculateParents(bracket.championship, data, "round_of_2");
-	console.log(bracket);
-    console.log(data);
-    
+    calculateParents(championship, data, "round_of_2");
+    return {championship}
 };

@@ -15,12 +15,14 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@types/atlaskit__button": "^6.4.2",
 		"bracket-data": "^4.6.0",
 		"cheerio": "^1.0.0-rc.2",
 		"http-server": "^0.11.1",
 		"lodash": "^4.17.11",
 		"minimist": "^1.2.0",
 		"p5": "^0.7.3",
-		"request": "^2.88.0"
+		"request": "^2.88.0",
+		"styled-components": "^4.3.2"
 	}
 }
