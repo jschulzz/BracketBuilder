@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@atlaskit/avatar": "^16.0.5",
     "@atlaskit/reduced-ui-pack": "^12.0.2",
     "@atlaskit/tag": "^8.0.4",
     "@types/jest": "24.0.15",

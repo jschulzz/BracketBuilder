@@ -55,6 +55,7 @@ with open("games.json", "r+") as f:
         html = browser.execute_script("return document.documentElement.outerHTML")
         soup = BeautifulSoup(html, "html.parser")
         soup.prettify()
+        logo_url = soup.find_all("img", attrs={"class":"teamlogo"})[0]["src"]
         heights = list(
             map(
                 lambda x: int(float(x.get("csk", -1))),
@@ -115,11 +116,10 @@ with open("games.json", "r+") as f:
         team_stats_row = soup.find("table", attrs={"id": "team_stats"}).find_all("tr")[
             1
         ]
+
         for data_tag in team_stats_row.find_all("td"):
             stat = data_tag["data-stat"]
             data[team][stat] = float(data_tag.string)
-        # for
-        # print (float(O_rtg[0].parent.parent.getText().split(" ")[1]))
         if nums == []:
             print(team)
         data[team]["weights"] = weights
@@ -132,6 +132,7 @@ with open("games.json", "r+") as f:
         data[team]["sos"] = SOS
         data[team]["points_scored"] = PS
         data[team]["points_against"] = PA
+        data[team]["logo_url"] = logo_url
         # print(data[team])
         f.seek(0)
         json.dump(data, f, indent=4)

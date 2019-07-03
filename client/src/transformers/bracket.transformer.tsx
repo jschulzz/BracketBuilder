@@ -5,15 +5,27 @@ import {
 	PythonBracketTeam
 } from "../types/types";
 
+import {translateName} from '../util'
+
+import teamData from '../games.json'
+
 const findTeam = (all_teams: Team[], team_name: string): Team => {
 	return all_teams.filter((team: Team) => team.name === team_name)[0];
 };
 
 const pythonTeamtoTeam = (team: PythonBracketTeam): Team => {
+    const originalName = team.name
+    const translatedName = translateName(originalName)
+    // console.log(`Name: ${originalName} -  Translates to ${translatedName}`)
+    // console.log(`Name in obj: ${Object.keys(teamData).includes(originalName)} - Translated in obj: ${Object.keys(teamData).includes(translatedName)}`)
+    if(!Object.keys(teamData).includes(translatedName)){
+        console.log("still can't find ", translatedName)
+    }
 	return {
 		seed: team.seed,
-		name: team.name,
-		parent_match: null
+        name: team.name,
+        parent_match: null,
+        logo_url: teamData[translatedName] ? teamData[translatedName].logo_url : "https://placecage/100/100"
 	};
 };
 
@@ -27,8 +39,9 @@ export const getNextRound = (round: string): string => {
 const copyTeam = (team: Team): Team => {
 	return {
 		seed: team.seed,
-		name: team.name,
-		parent_match: null
+        name: team.name,
+        parent_match: team.parent_match || null,
+        logo_url: team.logo_url
 	};
 };
 
@@ -37,14 +50,16 @@ const findParentMatch = (
 	thisRound: string,
 	thisTeam: Team
 ): Game => {
-	const previousRound = getPreviousRound(thisRound);
+    const previousRound = getPreviousRound(thisRound);
+    const winner = copyTeam(thisTeam)
+    const loser = getOpponenetInRound(data, thisTeam, thisRound)
 	return {
-		winner: copyTeam(thisTeam),
-		loser: getOpponenetInRound(data, thisTeam, thisRound),
+		winner,
+		loser,
 		likelihood: data[thisRound].filter(
 			(team: PythonBracketTeam) => team.name === thisTeam.name
         )[0].matchup_chance,
-        round: thisRound,
+        round: previousRound,
         game_index: Math.floor(data[thisRound].findIndex((team) => team.name === thisTeam.name)/2)
 	};
 };

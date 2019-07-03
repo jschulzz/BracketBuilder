@@ -4,78 +4,32 @@ import "./team-card.css";
 import { getNextRound } from "../transformers/bracket.transformer";
 import { ArcherElement } from "react-archer";
 import Tag from "@atlaskit/tag";
+import Avatar from "@atlaskit/avatar";
 const TeamCard = ({ team }: teamCardProps) => {
-	// console.log(team.name)
 
-	const getTeamOrder = (match: Game | null): Team[] => {
-		if (match) {
-			if (match.winner.parent_match && match.loser.parent_match) {
-				if (
-					match.winner.parent_match.game_index <
-					match.loser.parent_match.game_index
-				) {
-					return [match.winner, match.loser];
-				}
-				return [match.loser, match.winner];
-			}
-			return [match.winner, match.loser].sort((t: Team) => t.seed);
-		}
-		return [];
-	};
-	console.log(team);
-	const [firstTeam, secondTeam] = getTeamOrder(team.parent_match);
-	const firstClasses = `${
-		firstTeam && firstTeam.name === team.name ? "winner" : "loser"
-	} `;
-	const secondClasses = `${
-		secondTeam && secondTeam.name === team.name ? "winner" : "loser"
-	} `;
-	// const firstClasses = `${firstTeam.name}-${team.parent_match.round} ${
-	// 	firstTeam.name === team.name ? "winner" : "loser"
-	// } `;
-	// const secondClasses = `${secondTeam.name}-${team.parent_match.round} ${
-	// 	secondTeam.name === team.name ? "winner" : "loser"
-	// } `;
+    const showTag = false;
+
 	return (
 		<React.Fragment>
-			{/* {team.parent_match && (
-				<div>
-					<div className={firstClasses}>
-						<TeamCard team={firstTeam} />
-					</div>
-				</div>
-			)} */}
-			<div className={`team-name`}>
-				<ArcherElement
-					id={`${team.name}-${
-						team.parent_match
-							? getNextRound(team.parent_match.round)
-							: "round_of_64"
+			<div
+				className={`team-name`}
+				onMouseEnter={() => console.log("mousign over", team)}
+			>
+				<Tag
+					onClick={() => console.log("mousign over", team)}
+					text={`${team.name} (${team.seed}) - ${
+						team.parent_match ? team.parent_match.likelihood : ""
 					}`}
-					relations={
-						team.parent_match
-							? [
-									{
-										targetId: `${team.name}-${
-											getNextRound(getNextRound(team.parent_match.round))
-										}`,
-										sourceAnchor: "right",
-										targetAnchor: "left"
-									}
-							  ]
-							: []
+					elemBefore={
+						<Avatar
+							onMouseEnter={() => console.log("mousign over", team)}
+							src={team.logo_url}
+							appearance="square"
+							borderColor="lightgrey"
+						/>
 					}
-				>
-					<Tag text={`${team.name} (${team.seed})`} />
-				</ArcherElement>
+				/>
 			</div>
-			{/* {team.parent_match && (
-				<div>
-					<div className={secondClasses}>
-						<TeamCard team={secondTeam} />
-					</div>
-				</div>
-			)} */}
 		</React.Fragment>
 	);
 };

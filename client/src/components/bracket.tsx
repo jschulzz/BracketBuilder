@@ -29,7 +29,9 @@ const Bracket = ({ teamData }: bracketProps) => {
 			</div> */}
 			<div className="champion">
 				{/* <TeamCard team={transformedData.championship.winner} />; */}
-				<GameTree game={transformedData.championship} />
+				{transformedData.championship.winner.parent_match && (
+					<GameTree game={transformedData.championship.winner.parent_match} />
+				)}
 			</div>
 		</ArcherContainer>
 	);
