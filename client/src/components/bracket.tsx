@@ -23,17 +23,14 @@ const Bracket = ({ teamData }: bracketProps) => {
 	const allMatchups = getMatchups(transformedData.championship, []);
 	console.log(allMatchups);
 	return (
-		<ArcherContainer>
-			{/* <div className="champion">
-				<TeamCard team={transformedData.championship.winner} />;
-			</div> */}
-			<div className="champion">
-				{/* <TeamCard team={transformedData.championship.winner} />; */}
-				{transformedData.championship.winner.parent_match && (
-					<GameTree game={transformedData.championship.winner.parent_match} />
-				)}
-			</div>
-		</ArcherContainer>
+		// <ArcherContainer>
+
+		<div className="champion">
+			{transformedData.championship.winner.parent_match && (
+				<GameTree game={transformedData.championship.winner.parent_match} />
+			)}
+		</div>
+		// </ArcherContainer>
 	);
 };
 
