@@ -5,7 +5,7 @@ import re
 
 def getHeaderStat(name):
     try:
-        parent = soup.find(text=re.compile("ORtg:")).parent.parent
+        parent = soup.find(text=re.compile(name)).parent.parent
         value = float(parent.getText().split(" ")[1])
         return value
     except:
@@ -72,12 +72,15 @@ with open("games.json", "r+") as f:
         PA = getHeaderStat("PA/G:")
 
         data["team_stats"][team] = {}
-        team_stats_row = soup.find("table", attrs={"id": "team_stats"}).find_all("tr")[
-            1
-        ]
-        for data_tag in team_stats_row.find_all("td"):
-            stat = data_tag["data-stat"]
-            data["team_stats"][team][stat] = float(data_tag.string)
+        try:
+            team_stats_row = soup.find("table", attrs={"id": "team_stats"}).find_all("tr")[
+                1
+            ]
+            for data_tag in team_stats_row.find_all("td"):
+                stat = data_tag["data-stat"]
+                data["team_stats"][team][stat] = float(data_tag.string)
+        except:
+            continue
         if nums == []:
             print(team)
 

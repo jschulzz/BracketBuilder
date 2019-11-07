@@ -34,6 +34,13 @@ for year in range(2019, 2020):
                 losing_team = loser.findAll("td")[0].find("a").string
                 losing_link = loser.findAll("td")[0].find("a").get("href")
                 losing_score = int(loser.findAll("td", {"class": "right"})[0].string)
+                if losing_team in result_dict:
+                    result_dict["game_results"][losing_team]["link"] = losing_link
+                else:
+                    result_dict["game_results"][losing_team] = {}
+                    result_dict["game_results"][losing_team]["link"] = losing_link
+
+
 
                 winner = game.findAll("tr", {"class": "winner"})[0]
                 winning_team = winner.findAll("td")[0].find("a").string
