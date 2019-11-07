@@ -4,22 +4,13 @@ import numpy as np
 import copy
 import math
 
-bracket_data = {}
-with open("bracketology.json") as f:
-    bracket_data = json.load(f)
-
 sortorder = [0, 15, 7, 8, 4, 11, 3, 12, 5, 10, 2, 13, 6, 9, 1, 14]
-
-
-east = list(np.array(bracket_data["E"])[sortorder])
-midwest = list(np.array(bracket_data["M"])[sortorder])
-west = list(np.array(bracket_data["W"])[sortorder])
-south = list(np.array(bracket_data["S"])[sortorder])
-# east_locations = bracket_data["east_locations"]
-# west_locations = bracket_data["west_locations"]
-# south_locations = bracket_data["south_locations"]
-# midwest_locations = bracket_data["midwest_locations"]
-# locations = [east_locations, west_locations, south_locations, midwest_locations]
+with open("bracketology.json") as f:
+    team_names = json.load(f)
+    east = [{"name": list(np.array(team_names["E"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
+    midwest = [{"name": list(np.array(team_names["M"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
+    west = [{"name": list(np.array(team_names["W"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
+    south = [{"name": list(np.array(team_names["S"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
 
 bracket_list = east + west + south + midwest
 
@@ -69,7 +60,6 @@ def getSite(remaining_bracket, locations):
 
 c = copy.deepcopy(bracket_list)
 for team in bracket_list:
-    print(team)
     if "/" in team["name"]:
         c.remove(team)
         t1, t2 = splitPlayIns(team)
@@ -79,6 +69,9 @@ for team in bracket_list:
 
 # quickly decide the winners of the play-ins
 for idx, team in enumerate(bracket_list):
+    name = team
+    team = {}
+    team["name"] = name
     team["overall_chance"] = 1.0
     team["matchup_chance"] = 1.0
     if "/" in team["name"]:
@@ -109,6 +102,7 @@ while len(old_list) > 1:
         winner_name, loser_name, chance = pickWinner(
             t1["name"], t2["name"], list_copy, site
         )
+        chance = max(min(chance, 1.0), 0)
 
         losing_team = None
         if t1["name"] == loser_name:

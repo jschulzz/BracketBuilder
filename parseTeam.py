@@ -5,11 +5,15 @@ import re
 
 def getHeaderStat(name):
     try:
-        parent = soup.find(text=re.compile(name)).parent.parent
+        origin = soup.find(text=re.compile(name))
+        parent = origin.parent.parent
+        if name is "SOS":
+            parent = parent.parent
         value = float(parent.getText().split(" ")[1])
         return value
     except:
-        return 0
+        print("No",name)
+        return 1
 
 
 def getPlayerStat(name, comparator, isInt):
@@ -67,7 +71,7 @@ with open("games.json", "r+") as f:
         logo_url = soup.find_all("img", attrs={"class": "teamlogo"})[0]["src"]
         O_rtg = getHeaderStat("ORtg:")
         D_rtg = getHeaderStat("DRtg:")
-        SOS = getHeaderStat("SOS:")
+        SOS = getHeaderStat("SOS")
         PS = getHeaderStat("PS/G:")
         PA = getHeaderStat("PA/G:")
 

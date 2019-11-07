@@ -65,7 +65,7 @@ def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
 data = {}
 bracket_data = {}
 with open("games.json") as f:
-    data = json.load(f)
+    data = json.load(f)["team_stats"]
 
 
 def scoreFn(suck_degree, game_score, num_games):
@@ -83,27 +83,27 @@ def scoreFn(suck_degree, game_score, num_games):
 
 
 # print(len(data))
-g = []
-for winner in data:
-    # print(winner)
-    for loser in data[winner]["opponent_scores"]:
-        winner_idx = list(data.keys()).index(winner)
-        # loser_id
-        try:
-            loser_idx = list(data.keys()).index(loser)
-            # print(loser_idx)
-            if winner_idx >= len(g):
-                g.append([(loser_idx, data[winner]["opponent_scores"][loser])])
-            else:
-                g[winner_idx].append(
-                    (loser_idx, data[winner]["opponent_scores"][loser])
-                )
-            # print(winner_idx, loser_idx)/
-        except:
-            # print(loser, "never won")
-            pass
+# g = []
+# for winner in data:
+#     # print(winner)
+#     for loser in data[winner]["opponent_scores"]:
+#         winner_idx = list(data.keys()).index(winner)
+#         # loser_id
+#         try:
+#             loser_idx = list(data.keys()).index(loser)
+#             # print(loser_idx)
+#             if winner_idx >= len(g):
+#                 g.append([(loser_idx, data[winner]["opponent_scores"][loser])])
+#             else:
+#                 g[winner_idx].append(
+#                     (loser_idx, data[winner]["opponent_scores"][loser])
+#                 )
+#             # print(winner_idx, loser_idx)/
+#         except:
+#             # print(loser, "never won")
+#             pass
 
-score = 0
+# score = 0
 
 searchreplacements = {
     "TCU$": "Texas Christian",
@@ -441,16 +441,20 @@ def efficiencyMargin(t1, t2, field):
 def efficiencyMarginWithSOS(t1, t2, field):
     if t1 not in list(data.keys()):
         t1 = replace(t1)
+        if t1 not in list(data.keys()):
+            return 0, 100, 100
     if t2 not in list(data.keys()):
         t2 = replace(t2)
+        if t2 not in list(data.keys()):
+            return 100, 0, 100
     off1 = data[t1]["offensive"]
     off2 = data[t2]["offensive"]
     def1 = data[t1]["defensive"]
     def2 = data[t2]["defensive"]
     sos1 = data[t1]["sos"]
     sos2 = data[t2]["sos"]
-    # print(sos1, sos2)
-    # would be nice to include someway of saying "if team gets hot, they win"
+    print(t1, off1, def1, sos1)
+    print(t2, off2, def2, sos2)
     res1 = ((off1 * sos1) + (sos2 * def2)) / 2
     res2 = ((off2 * sos2) + (sos1 * def1)) / 2
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
