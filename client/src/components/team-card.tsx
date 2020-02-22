@@ -49,9 +49,7 @@ const TeamCard = ({ team }: teamCardProps) => {
 				<div className="tag">
 					<div className="cover" onClick={clickTeam}>
 						<Tag
-							text={`${team.name} (${team.seed}) - ${
-								team.parent_match ? team.parent_match.likelihood : ""
-							}`}
+							text={`${team.name} (${team.seed+1})`}
 							elemBefore={
 								<div>
 									<Avatar

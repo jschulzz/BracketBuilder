@@ -16,8 +16,6 @@ const findTeam = (all_teams: Team[], team_name: string): Team => {
 const pythonTeamtoTeam = (team: PythonBracketTeam): Team => {
     const originalName = team.name
     const translatedName = translateName(originalName)
-    // console.log(`Name: ${originalName} -  Translates to ${translatedName}`)
-    // console.log(`Name in obj: ${Object.keys(teamData).includes(originalName)} - Translated in obj: ${Object.keys(teamData).includes(translatedName)}`)
     if(!Object.keys(teamData).includes(translatedName)){
         console.log("still can't find ", translatedName)
     }

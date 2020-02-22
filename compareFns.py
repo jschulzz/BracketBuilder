@@ -21,53 +21,6 @@ def printpath(data_point):
     print()
 
 
-# TODO: refactor this to look like the other functions
-def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
-    score = 0
-    queue = []
-
-    path = []
-    path.append(src)
-    queue.append((path, 0))
-    suck_degree = 0
-    while queue:
-        data_point = queue.pop(0)
-        # print(data_point)
-        path = data_point[0]
-        trans_score = data_point[1]
-        last = path[len(path) - 1]
-        if len(path) > suck_degree:
-            suck_degree += 1
-            if writeGames:
-                print()
-                print("Entering Degree", suck_degree, "of suck. Score at", score)
-        if suck_degree > depth:
-            return score
-        others_contained = True
-        for i in others:
-            if i not in path:
-                others_contained = False
-        if last == dst and others_contained:
-            if writeGames:
-                printpath(data_point)
-            score += scoreFn(suck_degree, data_point[1], len(path) - 1)
-
-        # print(g, last)
-        for team in g[last]:
-            # print(team, path)
-            if team[0] not in path or team[0] == src:  # circle suck
-                # if team[0] not in path:  # non circle such
-                newpath = list(path)
-                newpath.append(team[0])
-                queue.append((newpath, trans_score + team[1]))
-
-
-data = {}
-bracket_data = {}
-with open("games.json") as f:
-    data = json.load(f)["team_stats"]
-
-
 def scoreFn(suck_degree, game_score, num_games):
     score_multiplier = 1.0
     diff_per_level = game_score / max(num_games, 1)
@@ -81,29 +34,6 @@ def scoreFn(suck_degree, game_score, num_games):
         score_multiplier = 1.0
     return (100) * score_multiplier * (1 / 2) ** (suck_degree)
 
-
-# print(len(data))
-# g = []
-# for winner in data:
-#     # print(winner)
-#     for loser in data[winner]["opponent_scores"]:
-#         winner_idx = list(data.keys()).index(winner)
-#         # loser_id
-#         try:
-#             loser_idx = list(data.keys()).index(loser)
-#             # print(loser_idx)
-#             if winner_idx >= len(g):
-#                 g.append([(loser_idx, data[winner]["opponent_scores"][loser])])
-#             else:
-#                 g[winner_idx].append(
-#                     (loser_idx, data[winner]["opponent_scores"][loser])
-#                 )
-#             # print(winner_idx, loser_idx)/
-#         except:
-#             # print(loser, "never won")
-#             pass
-
-# score = 0
 
 searchreplacements = {
     "TCU$": "Texas Christian",
@@ -132,7 +62,7 @@ replacements = {
     "Liu Brooklyn$": "LIU-Brooklyn",
     "East Tennessee State$": "ETSU",
     "Charleston": "College of Charleston",
-    "UT Arlington": "Texas-Arlington"
+    "UT Arlington": "Texas-Arlington",
 }
 
 
@@ -142,11 +72,16 @@ def replace(t):
     return t
 
 
-def thiccestPlayer(t1, t2, field):
+def fixNames(t1, t2):
     if t1 not in list(data.keys()):
         t1 = replace(t1)
     if t2 not in list(data.keys()):
         t2 = replace(t2)
+    return (t1, t2)
+
+
+def thiccestPlayer(t1, t2, field):
+    t1, t2 = fixNames(t1, t2)
     weights1 = data[t1]["weights"]
     weights2 = data[t2]["weights"]
     big1 = max(weights1)
@@ -186,10 +121,7 @@ def machineLearning(team1name, team2name, field):
 
 
 def shortestStarters(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     weights1 = data[t1]["heights"][:5]
     weights2 = data[t2]["heights"][:5]
     small1 = min(weights1)
@@ -198,10 +130,7 @@ def shortestStarters(t1, t2, field):
 
 
 def closestAvgHometown(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     homes1 = data[t1]["hometowns"][:5]
     homes2 = data[t2]["hometowns"][:5]
     from geopy import Nominatim
@@ -255,10 +184,7 @@ def closestAvgHometown(t1, t2, field):
 
 
 def closestToGame(t1, t2, field, site):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     from geopy import Nominatim
     from geopy import distance
 
@@ -280,10 +206,7 @@ def closestToGame(t1, t2, field, site):
 
 
 def tallestStarters(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     weights1 = data[t1]["heights"][:5]
     weights2 = data[t2]["heights"][:5]
     small1 = max(weights1)
@@ -292,10 +215,7 @@ def tallestStarters(t1, t2, field):
 
 
 def avgHeight(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     heights1 = data[t1]["heights"]
     heights2 = data[t2]["heights"]
     small1 = mean(heights1)
@@ -304,10 +224,7 @@ def avgHeight(t1, t2, field):
 
 
 def mostAvgTeam(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
 
     t1score = 0
     t2score = 0
@@ -383,10 +300,7 @@ def mostAvgTeam(t1, t2, field):
 
 
 def compareJerseys(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     jerseyNums1 = data[t1]["jersey_nums"]
     jerseyNums2 = data[t2]["jersey_nums"]
     std1 = np.std(jerseyNums1)
@@ -395,10 +309,7 @@ def compareJerseys(t1, t2, field):
 
 
 def pointDifferential(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     PS1 = data[t1]["points_scored"]
     PS2 = data[t2]["points_scored"]
     PA1 = data[t1]["points_against"]
@@ -409,10 +320,7 @@ def pointDifferential(t1, t2, field):
 
 
 def pointsOffFouls(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     fouls1 = data[t1]["pf"]
     fouls2 = data[t2]["pf"]
     ft1 = data[t1]["ft_pct"]
@@ -425,10 +333,7 @@ def pointsOffFouls(t1, t2, field):
 
 
 def efficiencyMargin(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
+    t1, t2 = fixNames(t1, t2)
     off1 = data[t1]["offensive"]
     off2 = data[t2]["offensive"]
     def1 = data[t1]["defensive"]
@@ -453,28 +358,94 @@ def efficiencyMarginWithSOS(t1, t2, field):
     def2 = data[t2]["defensive"]
     sos1 = data[t1]["sos"]
     sos2 = data[t2]["sos"]
-    print(t1, off1, def1, sos1)
-    print(t2, off2, def2, sos2)
     res1 = ((off1 * sos1) + (sos2 * def2)) / 2
     res2 = ((off2 * sos2) + (sos1 * def1)) / 2
+    print(t1)
+    print("\tOff:", off1, "Def:", def1, "SOS:", sos1, "Scr:", res1)
+    print(t2)
+    print("\tOff:", off2, "Def:", def2, "SOS:", sos2, "Scr:", res2)
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
 
 
-def getScores(t1, t2, writePaths, depth):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
-    s_idx = list(data.keys()).index(t1)
-    d_idx = list(data.keys()).index(t2)
-    s_score = findpaths(g, s_idx, d_idx, writePaths, depth)
-    d_score = s_score
+def buildGraph(data):
+    g = []
+    for winner in data:
+        for loser in data[winner]["wins"]:
+            winner_idx = list(data.keys()).index(winner)
+            try:
+                loser_idx = list(data.keys()).index(loser)
+                if winner_idx >= len(g):
+                    g.append([(loser_idx, data[winner]["wins"][loser])])
+                else:
+                    g[winner_idx].append((loser_idx, data[winner]["wins"][loser]))
+            except:
+                pass
+    return g
+
+
+# TODO: refactor this to look like the other functions
+def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
+    score = 0
+    queue = []
+
+    path = []
+    path.append(src)
+    queue.append((path, 0))
+    suck_degree = 0
+    while queue:
+        data_point = queue.pop(0)
+        # print(data_point)
+        path = data_point[0]
+        trans_score = data_point[1]
+        last = path[len(path) - 1]
+        if suck_degree > depth:
+            return score
+        if len(path) > suck_degree:
+            suck_degree += 1
+            if writeGames:
+                print("Entering Degree", suck_degree, "of suck. Score at", score)
+        others_contained = True
+        for i in others:
+            if i not in path:
+                others_contained = False
+        if last == dst and others_contained:
+            if writeGames:
+                printpath(data_point)
+            score += scoreFn(suck_degree, data_point[1], len(path) - 1)
+
+        # print(g, last)
+        for team in g[last]:
+            # print(team, path)
+            # if team[0] not in path or team[0] == src:  # circle suck
+            if team[0] not in path:  # non circle such
+                newpath = list(path)
+                newpath.append(team[0])
+                queue.append((newpath, trans_score + team[1]))
+
+
+def TransitiveWinScores(t1, t2, writePaths=False, depth=4):
+    t1, t2 = fixNames(t1, t2)
+    print("Looking for", t1, "and", t2)
+    source_idx = list(data.keys()).index(t1)
+    dest_idx = list(data.keys()).index(t2)
+    source_score = findpaths(g, source_idx, dest_idx, writePaths, depth=depth)
+    dest_score = source_score
     if t1 != t2:
-        d_score = findpaths(g, d_idx, s_idx, writePaths, depth)
+        dest_score = findpaths(g, dest_idx, source_idx, writePaths, depth=depth)
     chance = 0.5
-    if (s_score + d_score) != 0:
-        chance = max(s_score / (s_score + d_score), d_score / (s_score + d_score))
-    return s_score, d_score, chance
+    if (source_score + dest_score) != 0:
+        chance = max(
+            source_score / (source_score + dest_score),
+            dest_score / (source_score + dest_score),
+        )
+    return source_score, dest_score, chance
+
+
+data = {}
+bracket_data = {}
+with open("stats.json") as f:
+    data = json.load(f)["team_stats"]
+g = buildGraph(data)
 
 
 if __name__ == "__main__":
@@ -484,7 +455,7 @@ if __name__ == "__main__":
         team2 = sys.argv[2]
     others = []
     score = 0
-    team1_score, team2_score, chance = machineLearning(team1, team2, None)
+    team1_score, team2_score, chance = efficiencyMarginWithSOS(team1, team2, None)
     losing_score = round((1 - chance) * 1000) / 10
     if team1_score > team2_score:
         print(team1, "over", team2, "by", 100 * chance, "-", losing_score)

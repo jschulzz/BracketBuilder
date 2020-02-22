@@ -17,7 +17,8 @@ const getMatchups = (data: Game, games: Game[]): Game[] => {
 	return games;
 };
 
-const Bracket = ({ teamData }: bracketProps) => {
+const Bracket = ( {teamData} : any) => {
+    console.log(teamData)
 	const transformedData = transformBracketData(teamData);
 	console.log(transformedData);
 	const allMatchups = getMatchups(transformedData.championship, []);

@@ -4,21 +4,9 @@ import numpy as np
 import copy
 import math
 
-sortorder = [0, 15, 7, 8, 4, 11, 3, 12, 5, 10, 2, 13, 6, 9, 1, 14]
-with open("bracketology.json") as f:
-    team_names = json.load(f)
-    east = [{"name": list(np.array(team_names["E"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
-    midwest = [{"name": list(np.array(team_names["M"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
-    west = [{"name": list(np.array(team_names["W"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
-    south = [{"name": list(np.array(team_names["S"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
-
-bracket_list = east + west + south + midwest
-
-d = 4
-
 
 def pickWinner(team1, team2, field, site):
-    scoreOfT1, scoreofT2, chance = compareFns.efficiencyMarginWithSOS(team1, team2, field)
+    scoreOfT1, scoreofT2, chance = compareFns.TransitiveWinScores(team1, team2, True, 4)
     want_highest = True
     # want_highest depends on the compareFn used
     winning_score = round((chance) * 1000) / 1000
@@ -58,29 +46,38 @@ def getSite(remaining_bracket, locations):
     return site
 
 
-c = copy.deepcopy(bracket_list)
-for team in bracket_list:
-    if "/" in team["name"]:
-        c.remove(team)
-        t1, t2 = splitPlayIns(team)
-        c.append(t1)
-        c.append(t2)
+sortorder = [0, 15, 7, 8, 4, 11, 3, 12, 5, 10, 2, 13, 6, 9, 1, 14]
+with open("bracketology.json") as f:
+    team_names = json.load(f)
+    east = [{"name": list(np.array(team_names["E"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
+    midwest = [{"name": list(np.array(team_names["M"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
+    west = [{"name": list(np.array(team_names["W"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
+    south = [{"name": list(np.array(team_names["S"])[sortorder])[i],"seed": sortorder[i], "overall_chance":1.0} for i in range(0,16)]
+
+bracket_list = east + west + south + midwest
+
+d = 4
+
 
 
 # quickly decide the winners of the play-ins
 for idx, team in enumerate(bracket_list):
-    name = team
+    print(team)
+    name = team["name"]
     team = {}
     team["name"] = name
     team["overall_chance"] = 1.0
     team["matchup_chance"] = 1.0
     if "/" in team["name"]:
+        print(team["name"])
         t1, t2 = team["name"].split(" / ")
-        winner, loser, odds = pickWinner(t1, t2, c, "Dayton, OH")
-        team["name"] = winner
-        team["overall_chance"] = float(odds)
-        team["matchup_chance"] = float(odds)
+        winner, loser, odds = pickWinner(t1, t2, bracket_list, "Dayton, OH")
+        bracket_list[idx]["name"] = winner
+        bracket_list[idx]["overall_chance"] = float(odds)
+        bracket_list[idx]["matchup_chance"] = float(odds)
+    print(team)
 
+print(bracket_list)
 filename = "client/src/result_bracket.json"
 data = {}
 data["round_of_64"] = copy.deepcopy(bracket_list)

@@ -47,19 +47,23 @@ def getHTML(url):
 
 teamdata = {}
 data = {}
-with open("games.json", "r+") as f:
-    data = json.load(f)
+with open("games.json", "r+") as readfile:
+    game_data = json.load(readfile)
     data["html"] = {}
-    results = data["game_results"]
-    total_known_teams = len(list(results.keys()))
-    for idx, team in enumerate(results):
-        print(str(idx) + "/" + str(total_known_teams), team)
-        # if data[team].get("player_pts", []) != [] or data[team]["link"] == None:
-        #     continue
-        if results[team]["link"] is not None:
-            url = baseUrl + results[team]["link"]
-            html = getHTML(url)
-            data["html"][team] = html
-            f.seek(0)
-            json.dump(data, f, indent=4)
-            f.truncate()
+    results = game_data["game_results"]
+    teams_with_wins = dict()
+    for (key, value) in results.items():
+        if bool(value["wins"]) == True and value["link"] != None:
+            teams_with_wins[key] = value
+    total_known_teams = len(list(teams_with_wins.keys()))
+    
+    with open("html.json", "w") as writefile:
+        for idx, team in enumerate(teams_with_wins):
+            print(str(idx) + "/" + str(total_known_teams), team)
+            if teams_with_wins[team]["link"] is not None:
+                url = baseUrl + teams_with_wins[team]["link"]
+                html = getHTML(url)
+                data["html"][team] = html
+                writefile.seek(0)
+                json.dump(data, writefile, indent=4)
+                writefile.truncate()

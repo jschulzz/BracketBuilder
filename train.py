@@ -20,7 +20,7 @@ def clearOldNetworks():
 
 def createInputList(t1, t2):
     output_current = []
-    output_current.append(len(t1["opponent_scores"]) / 35)
+    output_current.append(len(t1["wins"]) / 35)
     output_current.append(t1["fg_pct"])  # field goal percentage
     # field goal attempts per game
     output_current.append(t1["fga"] / t1["mp"])
@@ -59,7 +59,7 @@ def createInputList(t1, t2):
     output_current.append(t1["defensive"] / 100)  # defensive efficiency
 
     # field goal percentage
-    output_current.append(len(t2["opponent_scores"]) / 35)
+    output_current.append(len(t2["wins"]) / 35)
     output_current.append(t2["fg_pct"])  # field goal percentage
     # field goal attempts per game
     output_current.append(t2["fga"] / t2["mp"])
@@ -121,7 +121,7 @@ def getData():
     input_list = []
     output_list = []
     for winner_team_name in data:
-        for loser_team_name in data[winner_team_name]["opponent_scores"]:
+        for loser_team_name in data[winner_team_name]["wins"]:
             # if loser_team_name not in data or (loser_team_name not in bracket_list and winner_team_name not in bracket_list) :
             if loser_team_name not in data:
                 continue

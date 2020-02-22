@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cd client && npm start",
     "getBracket": "node ./node_modules/bracket-data/build/bracketology.js -s ncaam > bracketology.json",
-    "getTeams": "python scrapeGames.py && python scrapeTeams.py"
+    "getTeams": "python scrapeGames.py && python scrapeTeams.py && python parseGame.py"
   },
   "repository": {
     "type": "git",

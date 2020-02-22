@@ -20,10 +20,11 @@ export const GameTree = ({ game }: gameTreeProps) => {
 			return [match.winner, match.loser].sort((t: Team) => t.seed);
 		}
 		return [];
-	};
+    };
+    
 	const [firstTeam, secondTeam] = getTeamOrder(game);
 
-	// console.log(game);
+	console.log(game);
 	return (
 		<React.Fragment>
 			{firstTeam.parent_match && secondTeam.parent_match ? (
