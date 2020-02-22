@@ -1,0 +1,18 @@
+.team-name {
+	width: 100%;
+}
+
+.cover {
+	z-index: 2;
+	/* position: absolute; */
+	top: 0px;
+	left: 0px;
+	color: white;
+	border: 1px solid red;
+}
+.tag {
+	z-index: 1;
+	/* position: absolute; */
+	top: 0px;
+	left: 0px;
+}

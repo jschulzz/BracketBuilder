@@ -6,3 +6,4 @@
 !package.json
 *.hdf5
 /debug.log
+/client/node_modules

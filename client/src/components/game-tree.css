@@ -1,0 +1,29 @@
+.game-holder {
+	text-align: center;
+	position: relative;
+	margin-left: -40%;
+}
+
+.parent {
+	float: left;
+	margin-left: 0px;
+	margin-right: 0px;
+    width: 200px;
+}
+
+.parent .upper {
+	margin-bottom: -10px;
+}
+.parent .lower {
+	margin-top: -10px;
+}
+
+.child {
+	right: 0px;
+	padding: auto;
+}
+
+.first-round {
+	float: left;
+	text-align: left;
+}
