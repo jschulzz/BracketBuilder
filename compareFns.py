@@ -110,10 +110,10 @@ def machineLearning(team1name, team2name, field):
         team2name = replace(team2name)
     t1 = data[team1name]
     t2 = data[team2name]
-    input_list = train.createInputList(t1, t2)
+    input_list = train.createInputList(t1) + train.createInputList(t2)
     model = train.createModel(len(input_list))
 
-    model.load_weights("weights-improvement-85-0.4550-0.5646.hdf5")
+    model.load_weights("best-so-far.hdf5")
     prediction = model.predict(np.expand_dims(input_list, axis=0))[0][0]
     if prediction > 0.5:
         return 0, 1, round(max(prediction, 1 - prediction) * 1000) / 1000
@@ -314,8 +314,8 @@ def pointDifferential(t1, t2, field):
     PS2 = data[t2]["points_scored"]
     PA1 = data[t1]["points_against"]
     PA2 = data[t2]["points_against"]
-    res1 = PS1 - PA2
-    res2 = PS2 - PA1
+    res1 = (PS1 + PA2) / 2
+    res2 = (PS2 + PA1) / 2
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
 
 
@@ -448,6 +448,17 @@ with open("stats.json") as f:
 g = buildGraph(data)
 
 
+def testMatch(method, team1, team2):
+    print("\nUsing:", method.__name__)
+    team1_score, team2_score, chance = method(team1, team2, None)
+    losing_odds = round((1 - chance) * 1000) / 10
+    print(team1, ":", team1_score, "\t", team2, ":", team2_score)
+    if team1_score > team2_score:
+        print(team1, "over", team2, "by", 100 * chance, "-", losing_odds)
+    else:
+        print(team2, "over", team1, "by", 100 * chance, "-", losing_odds)
+
+
 if __name__ == "__main__":
     team1 = sys.argv[1]
     team2 = team1
@@ -455,9 +466,5 @@ if __name__ == "__main__":
         team2 = sys.argv[2]
     others = []
     score = 0
-    team1_score, team2_score, chance = efficiencyMarginWithSOS(team1, team2, None)
-    losing_score = round((1 - chance) * 1000) / 10
-    if team1_score > team2_score:
-        print(team1, "over", team2, "by", 100 * chance, "-", losing_score)
-    else:
-        print(team2, "over", team1, "by", 100 * chance, "-", losing_score)
+    method = pointDifferential
+    testMatch(method, team1, team2)

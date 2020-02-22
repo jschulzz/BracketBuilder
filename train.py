@@ -18,126 +18,89 @@ def clearOldNetworks():
             os.remove(file)
 
 
-def createInputList(t1, t2):
+def createInputList(team_stats):
     output_current = []
-    output_current.append(len(t1["wins"]) / 35)
-    output_current.append(t1["fg_pct"])  # field goal percentage
-    # field goal attempts per game
-    output_current.append(t1["fga"] / t1["mp"])
-    output_current.append(t1["fg2_pct"])  # 2's percentage
-    output_current.append(t1["fg2a"] / t1["mp"])  # 2's attempts per game
-    output_current.append(t1["fg3_pct"])  # 3's percentage
-    output_current.append(t1["fg3a"] / t1["mp"])  # 3's attempts per game
-    output_current.append(t1["ft_pct"])  # Freethrow percentage
-    output_current.append(t1["fta"] / t1["mp"])  # Freethrow attempts per game
-    output_current.append(t1["orb"] / t1["mp"])  # offensive rebounds per game
-    output_current.append(t1["drb"] / t1["mp"])  # defensive rebounds per game
-    output_current.append(t1["ast"] / t1["mp"])  # assists per game
-    output_current.append(t1["stl"] / t1["mp"])  # steals per game
-    output_current.append(t1["blk"] / t1["mp"])  # blocks per game
-    output_current.append(t1["tov"] / t1["mp"])  # turnovers per game
-    output_current.append(t1["pf"] / t1["mp"])  # fouls per game
-    output_current.append(t1["pts_per_g"] / 100)  # points per game
-    output_current.append(t1["points_against"] / 100)  # strength of schedule
-    output_current.append(t1["sos"] / 13)  # strength of schedule
-    output_current.append(mean(t1["heights"]) / 80)  # average height
-    output_current.append(mean(t1["weights"]) / 280)  # average weight
-    # average height of starters
-    output_current.append(mean(t1["heights"][:5]) / 80)
-    # average weight of starters
-    output_current.append(mean(t1["weights"][:5]) / 280)
-    output_current.append(sum(t1["player_pts"][5:]) / 100)  # average jersey number
-    output_current.append(sum(t1["player_pts"][:5]) / 100)  # average jersey number
-    output_current.append(
-        sum(t1["player_pts"][5:]) / t1["pts_per_g"]
-    )  # average jersey number
-    output_current.append(
-        sum(t1["player_pts"][:5]) / t1["pts_per_g"]
-    )  # average jersey number
-    output_current.append(mean(t1["jersey_nums"]) / 36)  # average jersey number
-    output_current.append(t1["offensive"] / 100)  # offensive efficincy
-    output_current.append(t1["defensive"] / 100)  # defensive efficiency
-
+    output_current.append(len(team_stats["wins"]) / team_stats["g"])
     # field goal percentage
-    output_current.append(len(t2["wins"]) / 35)
-    output_current.append(t2["fg_pct"])  # field goal percentage
+    output_current.append(team_stats["fg_pct"])
     # field goal attempts per game
-    output_current.append(t2["fga"] / t2["mp"])
-    output_current.append(t2["fg2_pct"])  # 2's percentage
-    output_current.append(t2["fg2a"] / t2["mp"])  # 2's attempts per game
-    output_current.append(t2["fg3_pct"])  # 3's percentage
-    output_current.append(t2["fg3a"] / t2["mp"])  # 3's attempts per game
-    output_current.append(t2["ft_pct"])  # Freethrow percentage
-    output_current.append(t2["fta"] / t2["mp"])  # Freethrow attempts per game
-    output_current.append(t2["orb"] / t2["mp"])  # offensive rebounds per game
-    output_current.append(t2["drb"] / t2["mp"])  # defensive rebounds per game
-    output_current.append(t2["ast"] / t2["mp"])  # assists per game
-    output_current.append(t2["stl"] / t2["mp"])  # steals per game
-    output_current.append(t2["blk"] / t2["mp"])  # blocks per game
-    output_current.append(t2["tov"] / t2["mp"])  # turnovers per game
-    output_current.append(t2["pf"] / t2["mp"])  # fouls per game
-    output_current.append(t2["pts_per_g"] / 100)  # points per game
-    output_current.append(t2["points_against"] / 100)  # strength of schedule
-    output_current.append(t2["sos"] / 13)  # strength of schedule
-    output_current.append(mean(t2["heights"]) / 80)  # average height
-    output_current.append(mean(t2["weights"]) / 290)  # average weight
+    output_current.append(team_stats["fga"] / team_stats["g"])
+    # 2's percentage
+    output_current.append(team_stats["fg2_pct"])
+    # 2's attempts per game
+    output_current.append(team_stats["fg2a"] / team_stats["g"])
+    # 3's percentage
+    output_current.append(team_stats["fg3_pct"])
+    # 3's attempts per game
+    output_current.append(team_stats["fg3a"] / team_stats["g"])
+    # Freethrow percentage
+    output_current.append(team_stats["ft_pct"])
+    # Freethrow attempts per game
+    output_current.append(team_stats["fta"] / team_stats["g"])
+    # offensive rebounds per game
+    output_current.append(team_stats["orb"] / team_stats["g"])
+    # defensive rebounds per game
+    output_current.append(team_stats["drb"] / team_stats["g"])
+    # assists per game
+    output_current.append(team_stats["ast"] / team_stats["g"])
+    # steals per game
+    output_current.append(team_stats["stl"] / team_stats["g"])
+    # blocks per game
+    output_current.append(team_stats["blk"] / team_stats["g"])
+    # turnovers per game
+    output_current.append(team_stats["tov"] / team_stats["g"])
+    # fouls per game
+    output_current.append(team_stats["pf"] / team_stats["g"])
+    # points per game
+    output_current.append(team_stats["pts_per_g"] / 100)
+    # strength of schedule
+    output_current.append(team_stats["points_against"] / 100)
+    # strength of schedule
+    output_current.append(team_stats["sos"] / 13)
+    # offensive efficincy
+    output_current.append(team_stats["offensive"] / 100)
+    # defensive efficiency
+    output_current.append(team_stats["defensive"] / 100)
+    # output_current.append(mean(team_stats["heights"]) / 80)  # average height
+    # output_current.append(mean(team_stats["weights"]) / 280)  # average weight
+    # # average height of starters
+    # output_current.append(mean(team_stats["heights"][:5]) / 80)
+    # # average weight of starters
+    # output_current.append(mean(team_stats["weights"][:5]) / 280)
 
-    output_current.append(sum(t2["player_pts"][5:]) / 100)  # average jersey number
-    output_current.append(sum(t2["player_pts"][:5]) / 100)  # average jersey number
+    # starter's points
+    output_current.append(sum(team_stats["player_pts"][5:]) / 100)  
+    # starter's point weight
     output_current.append(
-        sum(t2["player_pts"][5:]) / t2["pts_per_g"]
-    )  # average jersey number
-    output_current.append(
-        sum(t2["player_pts"][:5]) / t2["pts_per_g"]
-    )  # average jersey number
-    # average height of starters
-    output_current.append(mean(t2["heights"][:5]) / 80)
-    # average weight of starters
-    output_current.append(mean(t2["weights"][:5]) / 280)
-    output_current.append(mean(t2["jersey_nums"]) / 36)  # average jersey number
-    output_current.append(t2["offensive"] / 100)  # offensive efficincy
-    output_current.append(t2["defensive"] / 100)  # defensive efficiency
-    # output_current.append(random.random())
+        sum(team_stats["player_pts"][5:]) / team_stats["pts_per_g"]
+    )  
     return output_current
 
 
 def getData():
 
     data = {}
-    bracket = {}
-    with open("games.json") as file:
+    with open("stats.json") as file:
         data = json.load(file)
-    with open("node_modules/bracket-data/data/ncaam/2019.json") as f:
-        bracket = json.load(f)
-    sortorder = [0, 15, 7, 8, 4, 11, 3, 12, 5, 10, 2, 13, 6, 9, 1, 14]
-
-    east = list(np.array(bracket["teams"]["E"])[sortorder])
-    midwest = list(np.array(bracket["teams"]["M"])[sortorder])
-    west = list(np.array(bracket["teams"]["W"])[sortorder])
-    south = list(np.array(bracket["teams"]["S"])[sortorder])
-
-    bracket_list = east + west + south + midwest
-    bracket_list = list(map(lambda x: x["team"], bracket_list))
     input_list = []
     output_list = []
+    data = data["team_stats"]
     for winner_team_name in data:
         for loser_team_name in data[winner_team_name]["wins"]:
-            # if loser_team_name not in data or (loser_team_name not in bracket_list and winner_team_name not in bracket_list) :
             if loser_team_name not in data:
+                # skip wins over untracked teams
                 continue
             t1name = winner_team_name
             t2name = loser_team_name
             t1 = data[t1name]
             t2 = data[t2name]
-            # input_current = [0, 0]
-            # input_current[r] = 1
-            # print(t1name, t2name, r)
-            if t1["link"] == None or t2["link"] == None:
+            if t1["wins"] == None or t2["wins"] == None:
+                # don't track games with missing data
                 continue
-            input_current = createInputList(t1, t2)
+            input_current = createInputList(t1) + createInputList(t2)
             input_list.append(input_current)
             output_list.append(0)
-            input_current = createInputList(t2, t1)
+            input_current = createInputList(t2) + createInputList(t1)
             input_list.append(input_current)
             output_list.append(1)
     return input_list, output_list
@@ -148,17 +111,17 @@ def createModel(input_length):
     # model.add(Dropout(0.3))
     model.add(
         Dense(
-            20,
+            30,
             activation="relu",
             kernel_initializer="normal",
             input_shape=(input_length,),
         )
     )
+    # model.add(Dropout(0.1))
+    model.add(Dense(75, activation='relu'))
     model.add(Dropout(0.1))
-    # model.add(Dense(75, activation='relu'))
-    # model.add(Dropout(0.1))
     model.add(Dense(10, activation="relu", kernel_initializer="normal"))
-    # model.add(Dropout(0.1))
+    model.add(Dropout(0.1))
     model.add(Dense(1, activation="sigmoid", kernel_initializer="normal"))
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model
@@ -194,8 +157,8 @@ if __name__ == "__main__":
     model.fit(
         np.asarray(input_list),
         np.asarray(output_list),
-        epochs=100,
-        batch_size=8,
+        epochs=1000,
+        batch_size=256,
         callbacks=callbacks_list,
         validation_split=0.2,
     )
