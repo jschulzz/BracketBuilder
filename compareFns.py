@@ -58,6 +58,7 @@ replacements = {
     "North Carolina$": "UNC",
     "Ucf$": "UCF",
     "Saint John's$": "St. John's (NY)",
+    "Saint Peter's$": "St. Peter's",
     "UC Irvine$": "UC-Irvine",
     "Liu Brooklyn$": "LIU-Brooklyn",
     "East Tennessee State$": "ETSU",
@@ -110,10 +111,10 @@ def machineLearning(team1name, team2name, field):
         team2name = replace(team2name)
     t1 = data[team1name]
     t2 = data[team2name]
-    input_list = train.createInputList(t1, t2)
+    input_list = train.createInputList(t1) + train.createInputList(t2)
     model = train.createModel(len(input_list))
 
-    model.load_weights("weights-improvement-85-0.4550-0.5646.hdf5")
+    model.load_weights("best-so-far.hdf5")
     prediction = model.predict(np.expand_dims(input_list, axis=0))[0][0]
     if prediction > 0.5:
         return 0, 1, round(max(prediction, 1 - prediction) * 1000) / 1000
@@ -314,8 +315,8 @@ def pointDifferential(t1, t2, field):
     PS2 = data[t2]["points_scored"]
     PA1 = data[t1]["points_against"]
     PA2 = data[t2]["points_against"]
-    res1 = PS1 - PA2
-    res2 = PS2 - PA1
+    res1 = (PS1 + PA2) / 2
+    res2 = (PS2 + PA1) / 2
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
 
 
@@ -384,7 +385,7 @@ def buildGraph(data):
 
 
 # TODO: refactor this to look like the other functions
-def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
+def findpaths(g, src, dst, writeGames=True, depth=5, others=[]):
     score = 0
     queue = []
 
@@ -423,15 +424,15 @@ def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
                 queue.append((newpath, trans_score + team[1]))
 
 
-def TransitiveWinScores(t1, t2, writePaths=False, depth=4):
+def transitiveWinScores(t1, t2, writePaths=True, depth=4):
     t1, t2 = fixNames(t1, t2)
     print("Looking for", t1, "and", t2)
     source_idx = list(data.keys()).index(t1)
     dest_idx = list(data.keys()).index(t2)
-    source_score = findpaths(g, source_idx, dest_idx, writePaths, depth=depth)
+    source_score = findpaths(g, source_idx, dest_idx, writeGames=writePaths, depth=depth)
     dest_score = source_score
     if t1 != t2:
-        dest_score = findpaths(g, dest_idx, source_idx, writePaths, depth=depth)
+        dest_score = findpaths(g, dest_idx, source_idx, writeGames=writePaths, depth=depth)
     chance = 0.5
     if (source_score + dest_score) != 0:
         chance = max(
@@ -448,6 +449,17 @@ with open("stats.json") as f:
 g = buildGraph(data)
 
 
+def testMatch(method, team1, team2):
+    print("\nUsing:", method.__name__)
+    team1_score, team2_score, chance = method(team1, team2)
+    losing_odds = round((1 - chance) * 1000) / 10
+    print(team1, ":", team1_score, "\t", team2, ":", team2_score)
+    if team1_score > team2_score:
+        print(team1, "over", team2, "by", 100 * chance, "-", losing_odds)
+    else:
+        print(team2, "over", team1, "by", 100 * chance, "-", losing_odds)
+
+
 if __name__ == "__main__":
     team1 = sys.argv[1]
     team2 = team1
@@ -455,9 +467,5 @@ if __name__ == "__main__":
         team2 = sys.argv[2]
     others = []
     score = 0
-    team1_score, team2_score, chance = efficiencyMarginWithSOS(team1, team2, None)
-    losing_score = round((1 - chance) * 1000) / 10
-    if team1_score > team2_score:
-        print(team1, "over", team2, "by", 100 * chance, "-", losing_score)
-    else:
-        print(team2, "over", team1, "by", 100 * chance, "-", losing_score)
+    # testMatch(machineLearning, team1, team2)
+    testMatch(transitiveWinScores, team1, team2)

@@ -5,7 +5,7 @@ import "./game-tree.css";
 import { ArcherElement } from "react-archer";
 import { getPreviousRound } from "../transformers/bracket.transformer";
 
-export const GameTree = ({ game }: gameTreeProps) => {
+export const GameTree = ({ game }) => {
 	const getTeamOrder = (match: Game | null): Team[] => {
 		if (match) {
 			if (match.winner.parent_match && match.loser.parent_match) {
@@ -20,8 +20,8 @@ export const GameTree = ({ game }: gameTreeProps) => {
 			return [match.winner, match.loser].sort((t: Team) => t.seed);
 		}
 		return [];
-    };
-    
+	};
+
 	const [firstTeam, secondTeam] = getTeamOrder(game);
 
 	console.log(game);
@@ -29,25 +29,25 @@ export const GameTree = ({ game }: gameTreeProps) => {
 		<React.Fragment>
 			{firstTeam.parent_match && secondTeam.parent_match ? (
 				<div className="game-holder">
-					<div className="parent upper">
+					<div className={`parent upper`}>
 						<GameTree game={firstTeam.parent_match} />
 					</div>
-					<div className="child">
+					<div className={`child`}>
 						<TeamCard team={game.winner} />
 					</div>
-					<div className="parent lower">
+					<div className={`parent lower`}>
 						<GameTree game={secondTeam.parent_match} />
 					</div>
 				</div>
 			) : (
 				<div className="game-holder">
-					<div className="parent upper first-round">
+					<div className={`parent upper first-round`}>
 						<TeamCard team={firstTeam} />
 					</div>
-					<div className="child">
+					<div className={`child`}>
 						<TeamCard team={game.winner} />
 					</div>
-					<div className="parent lower first-round">
+					<div className={`parent lower first-round`}>
 						<TeamCard team={secondTeam} />
 					</div>
 				</div>

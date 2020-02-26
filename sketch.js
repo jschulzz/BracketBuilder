@@ -6,19 +6,18 @@ let logo;
 // If I want to make it interactive (i.e. the user can override matchups), i'd have to make API calls to the server to re-calculate matchups
 // it's not worth precalculating all matchups
 
-let x_divisions = {
-    "64": 50,
-    "32": 190,
-    "16": 330,
-    "8": 470,
-    "4": 590
-};
+
 function preload() {
-    data = loadJSON("client/src/result_bracket.json");
+    httpGet("http://localhost:5000/", 'json', false, (res) => {
+        data = res
+        console.log(res);
+    })
     logo = loadImage("images/logo.png");
-    console.log(data);
 }
-function setup() {
+function draw() {
+    if(!data){
+        return
+    }
     let c = createCanvas(1500, 800);
     c.parent("sketch-holder");
     let r64 = data.round_of_64;
@@ -112,7 +111,7 @@ function setup() {
     noLoop();
     saveCanvas(c, "Opening" + "__" + getDay(), "png");
 }
-function draw() { }
+// function draw() { }
 
 let y_map = {
     "64": { s: 25, i: 10 },
@@ -121,6 +120,14 @@ let y_map = {
     "8": { s: 200, i: 94 },
     "4": { s: 400, i: 190 },
     "2": { s: 800, i: 382 }
+};
+
+let x_divisions = {
+    "64": 50,
+    "32": 190,
+    "16": 330,
+    "8": 470,
+    "4": 590
 };
 
 function makeSide(arr) {
