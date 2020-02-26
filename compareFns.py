@@ -58,6 +58,7 @@ replacements = {
     "North Carolina$": "UNC",
     "Ucf$": "UCF",
     "Saint John's$": "St. John's (NY)",
+    "Saint Peter's$": "St. Peter's",
     "UC Irvine$": "UC-Irvine",
     "Liu Brooklyn$": "LIU-Brooklyn",
     "East Tennessee State$": "ETSU",
@@ -384,7 +385,7 @@ def buildGraph(data):
 
 
 # TODO: refactor this to look like the other functions
-def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
+def findpaths(g, src, dst, writeGames=True, depth=5, others=[]):
     score = 0
     queue = []
 
@@ -423,15 +424,15 @@ def findpaths(g, src, dst, writeGames=False, depth=5, others=[]):
                 queue.append((newpath, trans_score + team[1]))
 
 
-def TransitiveWinScores(t1, t2, writePaths=False, depth=4):
+def transitiveWinScores(t1, t2, writePaths=True, depth=4):
     t1, t2 = fixNames(t1, t2)
     print("Looking for", t1, "and", t2)
     source_idx = list(data.keys()).index(t1)
     dest_idx = list(data.keys()).index(t2)
-    source_score = findpaths(g, source_idx, dest_idx, writePaths, depth=depth)
+    source_score = findpaths(g, source_idx, dest_idx, writeGames=writePaths, depth=depth)
     dest_score = source_score
     if t1 != t2:
-        dest_score = findpaths(g, dest_idx, source_idx, writePaths, depth=depth)
+        dest_score = findpaths(g, dest_idx, source_idx, writeGames=writePaths, depth=depth)
     chance = 0.5
     if (source_score + dest_score) != 0:
         chance = max(
@@ -450,7 +451,7 @@ g = buildGraph(data)
 
 def testMatch(method, team1, team2):
     print("\nUsing:", method.__name__)
-    team1_score, team2_score, chance = method(team1, team2, None)
+    team1_score, team2_score, chance = method(team1, team2)
     losing_odds = round((1 - chance) * 1000) / 10
     print(team1, ":", team1_score, "\t", team2, ":", team2_score)
     if team1_score > team2_score:
@@ -466,5 +467,5 @@ if __name__ == "__main__":
         team2 = sys.argv[2]
     others = []
     score = 0
-    method = pointDifferential
-    testMatch(method, team1, team2)
+    # testMatch(machineLearning, team1, team2)
+    testMatch(transitiveWinScores, team1, team2)

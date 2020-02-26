@@ -69,11 +69,9 @@ def createInputList(team_stats):
     # output_current.append(mean(team_stats["weights"][:5]) / 280)
 
     # starter's points
-    output_current.append(sum(team_stats["player_pts"][5:]) / 100)  
+    output_current.append(sum(team_stats["player_pts"][5:]) / 100)
     # starter's point weight
-    output_current.append(
-        sum(team_stats["player_pts"][5:]) / team_stats["pts_per_g"]
-    )  
+    output_current.append(sum(team_stats["player_pts"][5:]) / team_stats["pts_per_g"])
     return output_current
 
 
@@ -118,7 +116,7 @@ def createModel(input_length):
         )
     )
     # model.add(Dropout(0.1))
-    model.add(Dense(75, activation='relu'))
+    model.add(Dense(75, activation="relu"))
     model.add(Dropout(0.1))
     model.add(Dense(10, activation="relu", kernel_initializer="normal"))
     model.add(Dropout(0.1))
@@ -157,7 +155,7 @@ if __name__ == "__main__":
     model.fit(
         np.asarray(input_list),
         np.asarray(output_list),
-        epochs=1000,
+        epochs=100,
         batch_size=256,
         callbacks=callbacks_list,
         validation_split=0.2,

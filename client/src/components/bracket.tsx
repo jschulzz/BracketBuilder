@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { transformBracketData } from "../transformers/bracket.transformer";
 import { PythonBracketData, Game } from "../types/types";
 import TeamCard from "./team-card";
 import { ArcherContainer } from "react-archer";
 import "./bracket.css";
 import { GameTree } from "./game-tree";
+import axios from "axios";
 
 const getMatchups = (data: Game, games: Game[]): Game[] => {
 	games.push(data);
@@ -17,22 +18,40 @@ const getMatchups = (data: Game, games: Game[]): Game[] => {
 	return games;
 };
 
-const Bracket = ( {teamData} : any) => {
-    console.log(teamData)
+const Bracket = () => {
+	const [teamData, setTeamData] = useState(undefined);
+	useEffect(() => {
+		const fetchBracket = async () => {
+			const teamData = await axios.get("http://localhost:5000/");
+			console.log(teamData);
+			setTeamData(teamData.data);
+		};
+		fetchBracket();
+	}, []);
 	const transformedData = transformBracketData(teamData);
-	console.log(transformedData);
-	const allMatchups = getMatchups(transformedData.championship, []);
-	console.log(allMatchups);
-	return (
-		// <ArcherContainer>
-
-		<div className="champion">
-			{transformedData.championship.winner.parent_match && (
-				<GameTree game={transformedData.championship.winner.parent_match} />
-			)}
-		</div>
-		// </ArcherContainer>
-	);
+	if (transformedData) {
+		console.log(transformedData);
+		const allMatchups = getMatchups(transformedData.championship, []);
+		console.log(allMatchups);
+		return (
+			// <ArcherContainer>
+			<React.Fragment>
+				<div className="champion">
+					{transformedData.championship && (
+						<GameTree game={transformedData.championship}/>
+					)}
+				</div>
+				{/* <div className="champion">
+					{transformedData.championship.loser.parent_match && (
+						<GameTree game={transformedData.championship.loser.parent_match} side="right"/>
+					)}
+				</div> */}
+			</React.Fragment>
+			// </ArcherContainer>
+		);
+	} else {
+		return <div></div>;
+	}
 };
 
 interface bracketProps {

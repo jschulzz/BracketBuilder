@@ -49,11 +49,11 @@ const TeamCard = ({ team }: teamCardProps) => {
 				<div className="tag">
 					<div className="cover" onClick={clickTeam}>
 						<Tag
-							text={`${team.name} (${team.seed+1})`}
+							text={`${team.name} (${team.seed + 1})`}
 							elemBefore={
 								<div>
 									<Avatar
-										size="large"
+										size="medium"
 										src={team.logo_url}
 										appearance="square"
 										borderColor="lightgrey"

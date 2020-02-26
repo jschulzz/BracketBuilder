@@ -1,8 +1,10 @@
 from flask import Flask, request
+from flask_cors import CORS
 import compareFns
 import bracket
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/challenge', methods=["POST"])
 def challengeTeams():
@@ -13,7 +15,7 @@ def challengeTeams():
 
 @app.route('/')
 def getStarterBracket():
-    bracket_result = bracket.buildInitialBracket(method=compareFns.machineLearning)
+    bracket_result = bracket.buildInitialBracket(method=compareFns.efficiencyMargin)
     return bracket_result
 
 
