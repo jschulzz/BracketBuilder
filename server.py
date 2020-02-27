@@ -7,18 +7,24 @@ import json
 app = Flask(__name__)
 CORS(app)
 
+assigned = []
 
 @app.route("/challenge", methods=["POST"])
 def challengeTeams():
+    global assigned
     if request.method == "POST":
-        data = request.get_json()
-        print(data)
-    return 0
+        data = request.get_json(force=True)
+        tuples = list(map(lambda arr: tuple(arr), data))
+        assigned = tuples
+        print(assigned)
+    return "0"
 
 
 @app.route("/")
 def getStarterBracket():
-    bracket_result = bracket.buildInitialBracket(method=compareFns.efficiencyMargin)
+    global assigned
+    print(assigned)
+    bracket_result = bracket.buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=assigned)
     return bracket_result
 
 

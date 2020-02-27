@@ -17,7 +17,8 @@ export interface PythonBracketData {
 export interface PythonBracketTeam {
 	matchup_chance: number;
 	overall_chance: number;
-	seed: number;
+    seed: number;
+    opponent: string;
 	name: string;
     drawerOpen: boolean;
     teamId: number

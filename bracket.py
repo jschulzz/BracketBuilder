@@ -46,9 +46,10 @@ def getSite(remaining_bracket, locations):
     return site
 
 
-def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS):
+def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
 
     sortorder = [0, 15, 7, 8, 4, 11, 3, 12, 5, 10, 2, 13, 6, 9, 1, 14]
+    print(assigned)
     with open("bracketology.json") as f:
         team_names = json.load(f)
         east = [
@@ -56,6 +57,7 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS):
                 "name": list(np.array(team_names["E"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
+                "opponent": ""
             }
             for i in range(0, 16)
         ]
@@ -64,6 +66,7 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS):
                 "name": list(np.array(team_names["M"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
+                "opponent": ""
             }
             for i in range(0, 16)
         ]
@@ -72,6 +75,7 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS):
                 "name": list(np.array(team_names["W"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
+                "opponent": ""
             }
             for i in range(0, 16)
         ]
@@ -80,30 +84,35 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS):
                 "name": list(np.array(team_names["S"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
+                "opponent": ""
             }
             for i in range(0, 16)
         ]
 
     bracket_list = east + west + south + midwest
 
+    for idx, team in enumerate(bracket_list):
+        opponent_idx = idx + 1 if idx % 2 == 0 else idx - 1
+        bracket_list[idx]["opponent"] = bracket_list[opponent_idx]["name"]
+
     # quickly decide the winners of the play-ins
     for idx, team in enumerate(bracket_list):
-        print(team)
+        # print(team)
+
         name = team["name"]
         team = {}
         team["name"] = name
         team["overall_chance"] = 1.0
         team["matchup_chance"] = 1.0
+        team["opponent"] = bracket_list[idx + 1 if idx % 2 == 0 else idx - 1]["name"]
         if "/" in team["name"]:
-            print(team["name"])
             t1, t2 = team["name"].split(" / ")
             winner, loser, odds = pickWinner(t1, t2, method, bracket_list, "Dayton, OH")
             bracket_list[idx]["name"] = winner
             bracket_list[idx]["overall_chance"] = float(odds)
             bracket_list[idx]["matchup_chance"] = float(odds)
-        print(team)
+            bracket_list[idx]["opponent"] = bracket_list[idx + 1 if idx % 2 == 0 else idx - 1]["name"]
 
-    print(bracket_list)
     filename = "client/src/result_bracket.json"
     data = {}
     data["round_of_64"] = copy.deepcopy(bracket_list)
@@ -122,9 +131,17 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS):
             t2 = old_list[i + 1]
             site = "Canada"
             # site = getSite(list_copy, locations)
+                
             winner_name, loser_name, chance = pickWinner(
                 t1["name"], t2["name"], method, list_copy, site
             )
+            if (t1["name"], t2["name"], loser_name) in assigned or (t2["name"], t1["name"], loser_name) in assigned:
+                print("Match Defined", (t1["name"], t2["name"], loser_name))
+                swap = winner_name
+                winner_name = loser_name
+                loser_name = swap
+                chance = 1 - chance
+
             chance = max(min(chance, 1.0), 0)
 
             losing_team = None
@@ -145,6 +162,12 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS):
             list(filter(lambda x: x["name"] == winner_name, new_list))[0][
                 "matchup_chance"
             ] = float(chance)
+        for idx, team in enumerate(new_list):
+            if len(new_list) > 1:
+                opponent_idx = idx + 1 if idx % 2 == 0 else idx - 1
+                new_list[idx]["opponent"] = new_list[opponent_idx]["name"]
+            else:
+                new_list[idx]["opponent"] = ""
         print("\n" + "Round Of " + str(len(old_list)) + "\n")
         old_list = new_list
         data["round_of_" + str(len(old_list))] = copy.deepcopy(old_list)

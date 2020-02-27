@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
-import Bracket from "./components/bracket";
-import axios from "axios";
 import "./App.css";
-import Sketch from "react-p5";
 import P5Wrapper from "react-p5-wrapper";
-import Drawer from "@atlaskit/drawer";
 import { PythonBracketData, Game, PythonBracketTeam } from "./types/types";
-import { transformBracketData } from "./transformers/bracket.transformer";
 
 const App: React.FC = () => {
 	const [teamData, setTeamData] = useState<PythonBracketData>({});
@@ -15,6 +10,9 @@ const App: React.FC = () => {
 	const [selectedTeam, setSelectedTeam] = useState<
 		PythonBracketTeam | undefined
 	>(undefined);
+	const [assignedMatches, setAssignedMatches] = useState<PythonBracketTeam[][]>(
+		[]
+	);
 
 	const fetchData = async () => {
 		if (!dataRecieved) {
@@ -30,12 +28,30 @@ const App: React.FC = () => {
 		fetchData();
 	});
 
+	function assignMatch(info: any) {
+		let newAssignedMatches = assignedMatches;
+		for (let i = newAssignedMatches.length - 1; i >= 0; i--) {
+			let [team1, team2, winner] = newAssignedMatches[i];
+			if (
+				(info.name === team1 && info.opponent === team2) ||
+				(info.name === team2 && info.opponent === team1)
+			) {
+				newAssignedMatches.splice(i);
+			}
+		}
+		newAssignedMatches.push([info.name, info.opponent, info.name]);
+		fetch("http://localhost:5000/challenge", {
+			method: "post",
+			body: JSON.stringify(newAssignedMatches)
+		});
+		console.log(newAssignedMatches);
+		setAssignedMatches(newAssignedMatches);
+		setDataRecieved(false);
+	}
+
 	const sketch = p5 => {
-		let data: PythonBracketData = {};
-		let transformedData;
 		let width = 0;
 		let height = 0;
-		let drawers: any[] = [];
 
 		p5.setup = () => {
 			p5.createCanvas(1500, 800);
@@ -43,11 +59,11 @@ const App: React.FC = () => {
 			height = 800;
 		};
 
-		p5.myCustomRedrawAccordingToNewPropsHandler = props => {
-			if (props.bracket) {
-				data = props.bracket;
-			}
-		};
+		// p5.myCustomRedrawAccordingToNewPropsHandler = props => {
+		// 	if (props.bracket) {
+		// 		data = props.bracket;
+		// 	}
+		// };
 
 		p5.y_map = {
 			"64": { s: 25, i: 10 },
@@ -216,7 +232,9 @@ const App: React.FC = () => {
 				"(" +
 				(info.seed + 1) +
 				") - " +
-				(info.matchup_chance * 100).toFixed(1) +
+				(info.overall_chance * 100).toFixed(0) +
+				"%, " +
+				(info.matchup_chance * 100).toFixed(0) +
 				"%";
 			let h = 10;
 			let gap = 4;
@@ -243,16 +261,7 @@ const App: React.FC = () => {
 				p5.fill(0, 90);
 				p5.rect(centerx, centery, w * 0.8, h, h);
 				if (p5.mouseIsPressed) {
-					// console.log("clicked", info)
-					p5.httpGet(
-						"http://localhost:5000/team/" + info.name,
-						"json",
-						false,
-						res => {
-							let team = res.data;
-							console.log(res);
-						}
-					);
+					assignMatch(info);
 					setSelectedTeam(info);
 				}
 			}
@@ -265,14 +274,8 @@ const App: React.FC = () => {
 	return (
 		<div className="App">
 			{selectedTeam && <h1>{selectedTeam.name}</h1>}
+			{selectedTeam && <h1>{selectedTeam.opponent}</h1>}
 			<P5Wrapper sketch={sketch} bracket={teamData} />
-			{/* {allGames.map(val => {
-				return (
-					<Drawer width="wide" key={val.name + val.teamId} isOpen={val.drawerOpen}>
-						{val}
-					</Drawer>
-				);
-			})} */}
 		</div>
 	);
 };

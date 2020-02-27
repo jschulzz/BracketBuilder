@@ -5,7 +5,9 @@ from statistics import mean
 import json
 import sys
 import re
+import math
 import random
+import os
 import numpy as np
 from functools import reduce
 
@@ -76,6 +78,7 @@ def replace(t):
 def fixNames(t1, t2):
     return (fixName(t1), fixName(t2))
 
+
 def fixName(t):
     if t not in list(data.keys()):
         t = replace(t)
@@ -104,7 +107,9 @@ def thiccestStarters(t1, t2, field):
 
 
 def machineLearning(team1name, team2name, field):
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     import train
+    import keras
 
     if team1name not in list(data.keys()):
         team1name = replace(team1name)
@@ -113,10 +118,12 @@ def machineLearning(team1name, team2name, field):
     t1 = data[team1name]
     t2 = data[team2name]
     input_list = train.createInputList(t1) + train.createInputList(t2)
+    keras.backend.clear_session()
     model = train.createModel(len(input_list))
 
     model.load_weights("best-so-far.hdf5")
     prediction = model.predict(np.expand_dims(input_list, axis=0))[0][0]
+    keras.backend.clear_session()
     if prediction > 0.5:
         return 0, 1, round(max(prediction, 1 - prediction) * 1000) / 1000
     return 1, 0, round(max(prediction, 1 - prediction) * 1000) / 1000
@@ -362,11 +369,12 @@ def efficiencyMarginWithSOS(t1, t2, field):
     sos2 = data[t2]["sos"]
     res1 = ((off1 * sos1) + (sos2 * def2)) / 2
     res2 = ((off2 * sos2) + (sos1 * def1)) / 2
-    print(t1)
-    print("\tOff:", off1, "Def:", def1, "SOS:", sos1, "Scr:", res1)
-    print(t2)
-    print("\tOff:", off2, "Def:", def2, "SOS:", sos2, "Scr:", res2)
-    return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
+    # print(t1)
+    # print("\tOff:", off1, "Def:", def1, "SOS:", sos1, "Scr:", res1)
+    # print(t2)
+    # print("\tOff:", off2, "Def:", def2, "SOS:", sos2, "Scr:", res2)
+    chance = min(1, ((0.0035 * abs(res1 - res2)) + 0.5))
+    return res1, res2, chance
 
 
 def buildGraph(data):
@@ -430,10 +438,14 @@ def transitiveWinScores(t1, t2, writePaths=True, depth=4):
     print("Looking for", t1, "and", t2)
     source_idx = list(data.keys()).index(t1)
     dest_idx = list(data.keys()).index(t2)
-    source_score = findpaths(g, source_idx, dest_idx, writeGames=writePaths, depth=depth)
+    source_score = findpaths(
+        g, source_idx, dest_idx, writeGames=writePaths, depth=depth
+    )
     dest_score = source_score
     if t1 != t2:
-        dest_score = findpaths(g, dest_idx, source_idx, writeGames=writePaths, depth=depth)
+        dest_score = findpaths(
+            g, dest_idx, source_idx, writeGames=writePaths, depth=depth
+        )
     chance = 0.5
     if (source_score + dest_score) != 0:
         chance = max(
