@@ -74,11 +74,12 @@ def replace(t):
 
 
 def fixNames(t1, t2):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
-    return (t1, t2)
+    return (fixName(t1), fixName(t2))
+
+def fixName(t):
+    if t not in list(data.keys()):
+        t = replace(t)
+    return t
 
 
 def thiccestPlayer(t1, t2, field):

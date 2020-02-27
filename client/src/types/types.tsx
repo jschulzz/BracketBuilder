@@ -19,4 +19,6 @@ export interface PythonBracketTeam {
 	overall_chance: number;
 	seed: number;
 	name: string;
+    drawerOpen: boolean;
+    teamId: number
 }
