@@ -7,3 +7,6 @@
 *.hdf5
 /debug.log
 /client/node_modules
+*.otf
+
+*.code-workspace

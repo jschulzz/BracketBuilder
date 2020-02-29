@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
+// import logo from "./logo.svg";
 import "./App.css";
 import P5Wrapper from "react-p5-wrapper";
-import { PythonBracketData, Game, PythonBracketTeam } from "./types/types";
+import { PythonBracketData, PythonBracketTeam } from "./types/types";
 
 const App: React.FC = () => {
 	const [teamData, setTeamData] = useState<PythonBracketData>({});
@@ -51,12 +51,14 @@ const App: React.FC = () => {
 
 	const sketch = p5 => {
 		let width = 0;
-		let height = 0;
+        let height = 0;
+        let font
 
 		p5.setup = () => {
 			p5.createCanvas(1500, 800);
 			width = 1500;
-			height = 800;
+            height = 800;   
+            font = p5.loadFont("Matrix II Regular.otf")
 		};
 
 		// p5.myCustomRedrawAccordingToNewPropsHandler = props => {
@@ -72,7 +74,8 @@ const App: React.FC = () => {
 			"8": { s: 200, i: 94 },
 			"4": { s: 400, i: 190 },
 			"2": { s: 800, i: 382 }
-		};
+        };
+        
 
 		p5.draw = () => {
 			let x_divisions = {
@@ -170,7 +173,7 @@ const App: React.FC = () => {
 			p5.textSize(12);
 			for (let i = 0; i < arr.length; i++) {
 				if (p5.textWidth(arr[i].name) > maxW) {
-					maxW = p5.textWidth(arr[i].name);
+					maxW = p5.textWidth(arr[i].name + "    ");
 				}
 			}
 			for (let i = 0; i < arr.length; i++) {

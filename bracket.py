@@ -120,21 +120,22 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
     with open(filename, "w+") as f:
         f.write("")
 
-    old_list = bracket_list
-    new_list = bracket_list
+    this_round = bracket_list
+    next_round = bracket_list
 
-    while len(old_list) > 1:
-        list_copy = copy.deepcopy(old_list)
-        list_len = len(old_list)
+    while len(this_round) > 1:
+        this_round_duplicate = copy.deepcopy(this_round)
+        list_len = len(this_round)
         for i in range(0, int(list_len / 2)):
-            t1 = old_list[i]
-            t2 = old_list[i + 1]
+            t1 = this_round[i]
+            t2 = this_round[i + 1]
             site = "Canada"
-            # site = getSite(list_copy, locations)
+            # site = getSite(this_round_duplicate, locations)
                 
             winner_name, loser_name, chance = pickWinner(
-                t1["name"], t2["name"], method, list_copy, site
+                t1["name"], t2["name"], method, this_round_duplicate, site
             )
+            chance = max(min(chance, 1.0), 0)
             if (t1["name"], t2["name"], loser_name) in assigned or (t2["name"], t1["name"], loser_name) in assigned:
                 print("Match Defined", (t1["name"], t2["name"], loser_name))
                 swap = winner_name
@@ -142,35 +143,34 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
                 loser_name = swap
                 chance = 1 - chance
 
-            chance = max(min(chance, 1.0), 0)
 
             losing_team = None
             if t1["name"] == loser_name:
                 losing_team = t1
             else:
                 losing_team = t2
-            new_list.remove(losing_team)
+            next_round.remove(losing_team)
 
             previous_chance = copy.deepcopy(
-                list(filter(lambda x: x["name"] == winner_name, old_list))[0][
+                list(filter(lambda x: x["name"] == winner_name, this_round))[0][
                     "overall_chance"
                 ]
             )
-            list(filter(lambda x: x["name"] == winner_name, new_list))[0][
+            list(filter(lambda x: x["name"] == winner_name, next_round))[0][
                 "overall_chance"
             ] = float(previous_chance * chance)
-            list(filter(lambda x: x["name"] == winner_name, new_list))[0][
+            list(filter(lambda x: x["name"] == winner_name, next_round))[0][
                 "matchup_chance"
             ] = float(chance)
-        for idx, team in enumerate(new_list):
-            if len(new_list) > 1:
+        for idx, team in enumerate(next_round):
+            if len(next_round) > 1:
                 opponent_idx = idx + 1 if idx % 2 == 0 else idx - 1
-                new_list[idx]["opponent"] = new_list[opponent_idx]["name"]
+                next_round[idx]["opponent"] = next_round[opponent_idx]["name"]
             else:
-                new_list[idx]["opponent"] = ""
-        print("\n" + "Round Of " + str(len(old_list)) + "\n")
-        old_list = new_list
-        data["round_of_" + str(len(old_list))] = copy.deepcopy(old_list)
+                next_round[idx]["opponent"] = ""
+        print("\n" + "Round Of " + str(len(this_round)) + "\n")
+        this_round = next_round
+        data["round_of_" + str(len(this_round))] = copy.deepcopy(this_round)
 
     return data
 
