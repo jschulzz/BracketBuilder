@@ -1,9 +1,10 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
+import requests
 import time
 import json
 
-browser = webdriver.Chrome("chromedriver")
+# browser = webdriver.Chrome("chromedriver")
 baseUrl = "https://www.sports-reference.com/cbb/boxscores/index.cgi?"
 result_dict = {}
 result_dict["game_results"] = {}
@@ -25,9 +26,12 @@ for year in [2019, 2020]:
             url = (
                 url + "month=" + str(month) + "&day=" + str(day) + "&year=" + str(year)
             )
-            browser.get(url)
+            # browser.get(url)
+            r = requests.get(url)
+            html = r.text
+
             # time.sleep(2)
-            html = browser.execute_script("return document.documentElement.outerHTML")
+            # html = browser.execute_script("return document.documentElement.outerHTML")
             soup = BeautifulSoup(html, "html.parser")
             soup.prettify()
             for game in soup.findAll("div", {"class": "section_content"})[0].findAll(

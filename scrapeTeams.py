@@ -1,9 +1,10 @@
 from selenium import webdriver
+import requests
 import time
 import json
 import re
 
-browser = webdriver.Chrome("chromedriver")
+# browser = webdriver.Chrome("chromedriver")
 baseUrl = "https://www.sports-reference.com/"
 result_dict = {}
 
@@ -40,8 +41,10 @@ def transformTeamName(t):
 
 
 def getHTML(url):
-    browser.get(url)
-    html = browser.execute_script("return document.documentElement.outerHTML")
+    # browser.get(url)
+    r = requests.get(url)
+    html = r.text
+    # html = browser.execute_script("return document.documentElement.outerHTML")
     return html
 
 
