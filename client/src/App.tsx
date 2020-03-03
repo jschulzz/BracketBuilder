@@ -12,7 +12,6 @@ import { Bar } from "react-chartjs-2";
 import hexToRgba from "hex-to-rgba";
 import isEqual from "lodash/isEqual";
 import Modal, { ModalTransition } from "@atlaskit/modal-dialog";
-import Button, { ButtonGroup } from "@atlaskit/button";
 
 const App: React.FC = () => {
 	const [teamData, setTeamData] = useState<PythonBracketData>({});
@@ -25,18 +24,19 @@ const App: React.FC = () => {
 
 	const getTeam = async team_name => {
 		const res = await fetch("http://localhost:5000/team/" + team_name);
-		return res.json().then(data => {
-			return data;
-		});
+		const data = res.json();
+		return data;
 	};
 	const fetchData = async () => {
 		if (!dataRecieved) {
-			const res = await fetch("http://localhost:5000/");
-			res.json().then(data => {
-				setTeamData(data);
-				console.log(teamData);
-				setDataRecieved(true);
+			const res = await fetch("http://localhost:5000/", {
+				method: "post",
+				body: JSON.stringify(assignedMatches)
 			});
+			const data = await res.json();
+			setTeamData(data);
+			console.log(teamData);
+			setDataRecieved(true);
 		}
 	};
 
@@ -58,23 +58,13 @@ const App: React.FC = () => {
 			match: [info.name, info.opponent],
 			winner: info.name
 		});
-		console.log(refreshedAssignments);
-		fetch("http://localhost:5000/challenge", {
-			method: "post",
-			body: JSON.stringify(refreshedAssignments)
-		});
-		console.log(refreshedAssignments);
 		setAssignedMatches(refreshedAssignments);
 		setDataRecieved(false);
 	}
 
 	const sketch = p5 => {
-		let width = 0;
-		let height = 0;
 		p5.setup = () => {
 			p5.createCanvas(1500, 800);
-			width = 1500;
-			height = 800;
 		};
 
 		p5.y_map = {
@@ -87,21 +77,7 @@ const App: React.FC = () => {
 		};
 
 		p5.draw = () => {
-			const x_divisions = {
-				"64": 50,
-				"32": 190,
-				"16": 330,
-				"8": 470,
-				"4": 590
-			};
-			// background zones
-			for (let i = 64; i >= 4; i /= 2) {
-				p5.noStroke();
-				p5.fill(255, 255, 255, 50);
-				p5.rectMode(p5.CORNER);
-				p5.rect(0, 0, x_divisions[i.toString()], height);
-				p5.rect(width - x_divisions[i.toString()], 0, width, height);
-			}
+			p5.background(200);
 			if (dataRecieved) {
 				let r64 = teamData.round_of_64;
 				let r32 = teamData.round_of_32;
@@ -135,7 +111,13 @@ const App: React.FC = () => {
 
 				// p5.image(logo, width / 2, 100, 300, 120);
 				p5.strokeWeight(2);
-
+				const x_divisions = {
+					"64": 50,
+					"32": 190,
+					"16": 330,
+					"8": 470,
+					"4": 590
+				};
 				makeSide(p5, x_divisions, r64);
 				makeSide(p5, x_divisions, r32);
 				makeSide(p5, x_divisions, r16);
@@ -144,31 +126,31 @@ const App: React.FC = () => {
 				drawTeam(
 					p5,
 					r2[0],
-					width / 2 - 50,
-					height / 2 - 100,
+					p5.width / 2 - 50,
+					p5.height / 2 - 100,
 					p5.textWidth(r2[0].name) + 50,
 					1.5
 				);
 				drawTeam(
 					p5,
 					r2[1],
-					width / 2 + 50,
-					height / 2 + 100,
+					p5.width / 2 + 50,
+					p5.height / 2 + 100,
 					p5.textWidth(r2[1].name) + 50,
 					1.5
 				);
 				drawTeam(
 					p5,
 					r1[0],
-					width / 2,
-					height / 2,
+					p5.width / 2,
+					p5.height / 2,
 					p5.textWidth(r1[0].name) + 50,
 					2.2
 				);
 			}
 		};
 
-		const makeSide = (p5, x_divisions, arr) => {
+		const makeSide = (p5, x_divisions: Object, arr: PythonBracketTeam[]) => {
 			let startx = x_divisions[arr.length.toString()];
 			let maxW = 0;
 			p5.textSize(12);
@@ -192,12 +174,12 @@ const App: React.FC = () => {
 							centery,
 							centery + y_spacing + 4,
 							centerx + maxW * 0.8,
-							undefined
+							false
 						);
 					}
 					drawTeam(p5, arr[i], centerx, centery, maxW + 20, 1);
 				} else {
-					let centerx = width - startx - gap;
+					let centerx = p5.width - startx - gap;
 					let centery = (i - arr.length / 2) * y_spacing + y_initial + gap;
 					if (i % 2 === 0 && arr.length > 4) {
 						bracket(
@@ -213,7 +195,13 @@ const App: React.FC = () => {
 			}
 		};
 
-		const bracket = (p5, y1, y2, x, reverse) => {
+		const bracket = (
+			p5,
+			y1: number,
+			y2: number,
+			x: number,
+			reverse: boolean
+		) => {
 			p5.strokeWeight(2);
 			p5.stroke(0);
 			let y_spacing = -3;
@@ -229,8 +217,14 @@ const App: React.FC = () => {
 			p5.line(x + spacing, (v1 + v2) / 2, x + spacing * 2, (v1 + v2) / 2);
 		};
 
-		const drawTeam = (p5, info, centerx, centery, w, s) => {
-			info.drawerOpen = false;
+		const drawTeam = (
+			p5,
+			info: PythonBracketTeam,
+			centerx: number,
+			centery: number,
+			w: number,
+			s: number
+		) => {
 			let name = info.name + "(" + (info.seed + 1) + ")";
 
 			let h = 10;
@@ -253,7 +247,7 @@ const App: React.FC = () => {
 			p5.rectMode(p5.RADIUS);
 			p5.rect(centerx, centery, w * 0.8, h, h * 0.25);
 			if (
-				!selectedTeam &&
+				!compareData &&
 				p5.mouseX < centerx + w * 0.8 &&
 				p5.mouseX > centerx - w * 0.8 &&
 				p5.mouseY > centery - h &&
@@ -281,40 +275,68 @@ const App: React.FC = () => {
 				p5.textAlign(p5.CENTER);
 				p5.rectMode(p5.CENTER);
 				if (p5.mouseIsPressed) {
-					// assignMatch(info);
 					setSelectedTeam(info);
 					getTeam(info.name).then((home_data: PythonTeamData) => {
 						getTeam(info.opponent).then((away_data: PythonTeamData) => {
 							console.log(home_data);
 							console.log(away_data);
+							let loserName = info.name;
+							if (info.name === info.winner) {
+								loserName = info.opponent;
+							}
 							setCompareData({
-								labels: ["SOS", "Off. Eff.", "Def. Eff.", "FG %"],
-								datasets: [
-									{
-										label: info.name,
-										backgroundColor: hexToRgba(home_data.main_color, 0.6),
-										borderColor: hexToRgba(home_data.main_color, 1),
-										borderWidth: 1,
-										data: [
-											home_data.sos,
-											home_data.offensive,
-											home_data.defensive,
-											home_data.fg_pct * 100
-										]
-									},
-									{
-										label: info.opponent,
-										backgroundColor: hexToRgba(away_data.main_color, 0.6),
-										borderColor: hexToRgba(away_data.main_color, 1),
-										borderWidth: 1,
-										data: [
-											away_data.sos,
-											away_data.offensive,
-											away_data.defensive,
-											away_data.fg_pct * 100
-										]
-									}
-								]
+								modalData: {
+									heading: `Currently ${
+										info.winner
+									} beats ${loserName} - ${info.matchup_chance * 100}%`,
+									actions: [
+										{
+											text: `Set ${loserName} to winner`,
+											onClick: () => {
+												let fakeMatch = info;
+												fakeMatch.name = loserName;
+												fakeMatch.opponent = info.winner;
+												assignMatch(fakeMatch);
+												setCompareData(undefined);
+											}
+										},
+										{
+											text: `Keep ${info.winner} as winner`,
+											onClick: () => {
+												setCompareData(undefined);
+											}
+										}
+									]
+								},
+								graphData: {
+									labels: ["SOS", "Off. Eff.", "Def. Eff.", "FG %"],
+									datasets: [
+										{
+											label: info.name,
+											backgroundColor: hexToRgba(home_data.main_color, 0.6),
+											borderColor: hexToRgba(home_data.main_color, 1),
+											borderWidth: 1,
+											data: [
+												home_data.sos,
+												home_data.offensive,
+												home_data.defensive,
+												home_data.fg_pct * 100
+											]
+										},
+										{
+											label: info.opponent,
+											backgroundColor: hexToRgba(away_data.main_color, 0.6),
+											borderColor: hexToRgba(away_data.main_color, 1),
+											borderWidth: 1,
+											data: [
+												away_data.sos,
+												away_data.offensive,
+												away_data.defensive,
+												away_data.fg_pct * 100
+											]
+										}
+									]
+								}
 							});
 						});
 					});
@@ -328,20 +350,17 @@ const App: React.FC = () => {
 
 	return (
 		<div className="App">
-			{selectedTeam && compareData && (
-				<ModalTransition>
+			<ModalTransition>
+				{compareData && (
 					<Modal
-						actions={[
-							{ text: `Set ${selectedTeam.name} to winner` },
-							{ text: `Set ${selectedTeam.opponent} to winner` }
-						]}
-						heading={`${selectedTeam.name} vs ${selectedTeam.opponent}`}
-						onClose={() => setSelectedTeam(undefined)}
+						actions={compareData.modalData.actions}
+						heading={compareData.modalData.heading}
+						// onClose={() => setSelectedTeam(undefined)}
 					>
-						<Bar data={compareData} width={800} height={400}></Bar>
+						<Bar data={compareData.graphData} width={800} height={400}></Bar>
 					</Modal>
-				</ModalTransition>
-			)}
+				)}
+			</ModalTransition>
 			<P5Wrapper sketch={sketch} bracket={teamData} />
 			{assignedMatches.map(assignment => {
 				return (

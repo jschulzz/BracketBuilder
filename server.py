@@ -19,11 +19,15 @@ def challengeTeams():
     return "0"
 
 
-@app.route("/")
+@app.route("/", methods=["POST"])
 def getStarterBracket():
-    global assigned
+    assigned = []
+    if request.method == "POST":
+        data = request.get_json(force=True)
+        tuples = list(map(lambda arr: (arr["match"][0], arr["match"][1], arr["winner"]), data))
+        assigned = tuples
     print(assigned)
-    bracket_result = bracket.buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=assigned)
+    bracket_result = bracket.buildInitialBracket(method=compareFns.efficiencyMargin, assigned=assigned)
     return bracket_result
 
 
@@ -38,4 +42,4 @@ def getTeam(team_name):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, threaded=True)
