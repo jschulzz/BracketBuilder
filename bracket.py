@@ -5,12 +5,22 @@ import copy
 import math
 
 
+def mapOdds(chance):
+    return max(min(round((chance) * 1000) / 1000, 1.0), 0)
+
+
+def findWinner(name, search_list):
+    return list(filter(lambda x: x["name"] == name, search_list))[0]
+
+
 def pickWinner(team1, team2, method, field, site):
-    scoreOfT1, scoreofT2, chance = method(team1, team2, None)
+    scoreOfT1, scoreofT2, chance = method(
+        {"team1": team1, "team2": team2, "site": None, "field": None}
+    )
     want_highest = True
     # want_highest depends on the compareFn used
-    winning_score = round((chance) * 1000) / 1000
-    losing_score = round((1 - chance) * 1000) / 1000
+    winning_score = mapOdds(chance)
+    losing_score = mapOdds(1 - chance)
     if (want_highest and scoreOfT1 > scoreofT2) or (
         not want_highest and scoreOfT1 < scoreofT2
     ):
@@ -57,7 +67,8 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
                 "name": list(np.array(team_names["E"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
-                "opponent": ""
+                "opponent": "",
+                "winner": "",
             }
             for i in range(0, 16)
         ]
@@ -66,7 +77,8 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
                 "name": list(np.array(team_names["M"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
-                "opponent": ""
+                "opponent": "",
+                "winner": "",
             }
             for i in range(0, 16)
         ]
@@ -75,7 +87,8 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
                 "name": list(np.array(team_names["W"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
-                "opponent": ""
+                "opponent": "",
+                "winner": "",
             }
             for i in range(0, 16)
         ]
@@ -84,7 +97,8 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
                 "name": list(np.array(team_names["S"])[sortorder])[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
-                "opponent": ""
+                "opponent": "",
+                "winner": "",
             }
             for i in range(0, 16)
         ]
@@ -111,7 +125,9 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
             bracket_list[idx]["name"] = winner
             bracket_list[idx]["overall_chance"] = float(odds)
             bracket_list[idx]["matchup_chance"] = float(odds)
-            bracket_list[idx]["opponent"] = bracket_list[idx + 1 if idx % 2 == 0 else idx - 1]["name"]
+            bracket_list[idx]["opponent"] = bracket_list[
+                idx + 1 if idx % 2 == 0 else idx - 1
+            ]["name"]
 
     filename = "client/src/result_bracket.json"
     data = {}
@@ -131,37 +147,30 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
             t2 = this_round[i + 1]
             site = "Canada"
             # site = getSite(this_round_duplicate, locations)
-                
+
             winner_name, loser_name, chance = pickWinner(
                 t1["name"], t2["name"], method, this_round_duplicate, site
             )
-            chance = max(min(chance, 1.0), 0)
-            if (t1["name"], t2["name"], loser_name) in assigned or (t2["name"], t1["name"], loser_name) in assigned:
+
+            if isAssigned(assigned, t1, t2, loser_name):
                 print("Match Defined", (t1["name"], t2["name"], loser_name))
                 swap = winner_name
                 winner_name = loser_name
                 loser_name = swap
                 chance = 1 - chance
-
-
             losing_team = None
             if t1["name"] == loser_name:
                 losing_team = t1
             else:
                 losing_team = t2
             next_round.remove(losing_team)
+            winner_entry = findWinner(winner_name, next_round)
 
             previous_chance = copy.deepcopy(
-                list(filter(lambda x: x["name"] == winner_name, this_round))[0][
-                    "overall_chance"
-                ]
+                findWinner(winner_name, this_round)["overall_chance"]
             )
-            list(filter(lambda x: x["name"] == winner_name, next_round))[0][
-                "overall_chance"
-            ] = float(previous_chance * chance)
-            list(filter(lambda x: x["name"] == winner_name, next_round))[0][
-                "matchup_chance"
-            ] = float(chance)
+            winner_entry["overall_chance"] = float(previous_chance * chance)
+            winner_entry["matchup_chance"] = float(chance)
         for idx, team in enumerate(next_round):
             if len(next_round) > 1:
                 opponent_idx = idx + 1 if idx % 2 == 0 else idx - 1
@@ -169,10 +178,26 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
             else:
                 next_round[idx]["opponent"] = ""
         print("\n" + "Round Of " + str(len(this_round)) + "\n")
-        this_round = next_round
         data["round_of_" + str(len(this_round))] = copy.deepcopy(this_round)
+        past_round = data["round_of_" + str(len(this_round) * 2)]
+        for idx, team in enumerate(this_round):
+            past_round_idx = idx * 2
+            past_round[past_round_idx]["winner"] = team["name"]
+            past_round[past_round_idx + 1]["winner"] = team["name"]
+        data["round_of_" + str(len(past_round))] = copy.deepcopy(past_round)
+        this_round = next_round
+
+        # data["round_of_" + str(len(this_round))] = copy.deepcopy(this_round)
 
     return data
+
+
+def isAssigned(assigned, t1, t2, loser_name):
+    return (t1["name"], t2["name"], loser_name) in assigned or (
+        t2["name"],
+        t1["name"],
+        loser_name,
+    ) in assigned
 
 
 if __name__ == "__main__":

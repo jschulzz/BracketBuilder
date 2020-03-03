@@ -66,6 +66,7 @@ replacements = {
     "East Tennessee State$": "ETSU",
     "Charleston": "College of Charleston",
     "UT Arlington": "Texas-Arlington",
+    "Bowling Green": "Bowling Green State",
 }
 
 
@@ -85,7 +86,9 @@ def fixName(t):
     return t
 
 
-def thiccestPlayer(t1, t2, field):
+def thiccestPlayer(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     weights1 = data[t1]["weights"]
     weights2 = data[t2]["weights"]
@@ -94,7 +97,9 @@ def thiccestPlayer(t1, t2, field):
     return big1, big2, max(big1 / (big1 + big2), big2 / (big1 + big2))
 
 
-def thiccestStarters(t1, t2, field):
+def thiccestStarters(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     if t1 not in list(data.keys()):
         t1 = replace(t1)
     if t2 not in list(data.keys()):
@@ -106,7 +111,9 @@ def thiccestStarters(t1, t2, field):
     return big1, big2, max(big1 / (big1 + big2), big2 / (big1 + big2))
 
 
-def machineLearning(team1name, team2name, field):
+def machineLearning(input_args):
+    team1name = input_args["team1"]
+    team2name = input_args["team2"]
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     import train
     import keras
@@ -121,7 +128,7 @@ def machineLearning(team1name, team2name, field):
     keras.backend.clear_session()
     model = train.createModel(len(input_list))
 
-    model.load_weights("best-so-far.hdf5")
+    model.load_weights("best.hdf5")
     prediction = model.predict(np.expand_dims(input_list, axis=0))[0][0]
     keras.backend.clear_session()
     if prediction > 0.5:
@@ -129,7 +136,9 @@ def machineLearning(team1name, team2name, field):
     return 1, 0, round(max(prediction, 1 - prediction) * 1000) / 1000
 
 
-def shortestStarters(t1, t2, field):
+def shortestStarters(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     weights1 = data[t1]["heights"][:5]
     weights2 = data[t2]["heights"][:5]
@@ -138,7 +147,9 @@ def shortestStarters(t1, t2, field):
     return small1, small2, max(small1 / (small1 + small2), small2 / (small1 + small2))
 
 
-def closestAvgHometown(t1, t2, field):
+def closestAvgHometown(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     homes1 = data[t1]["hometowns"][:5]
     homes2 = data[t2]["hometowns"][:5]
@@ -192,7 +203,10 @@ def closestAvgHometown(t1, t2, field):
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
 
 
-def closestToGame(t1, t2, field, site):
+def closestToGame(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
+    site = input_args["site"]
     t1, t2 = fixNames(t1, t2)
     from geopy import Nominatim
     from geopy import distance
@@ -214,7 +228,9 @@ def closestToGame(t1, t2, field, site):
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
 
 
-def tallestStarters(t1, t2, field):
+def tallestStarters(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     weights1 = data[t1]["heights"][:5]
     weights2 = data[t2]["heights"][:5]
@@ -223,7 +239,9 @@ def tallestStarters(t1, t2, field):
     return small1, small2, max(small1 / (small1 + small2), small2 / (small1 + small2))
 
 
-def avgHeight(t1, t2, field):
+def avgHeight(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     heights1 = data[t1]["heights"]
     heights2 = data[t2]["heights"]
@@ -232,7 +250,10 @@ def avgHeight(t1, t2, field):
     return small1, small2, max(small1 / (small1 + small2), small2 / (small1 + small2))
 
 
-def mostAvgTeam(t1, t2, field):
+def mostAvgTeam(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
+    field = input_args["field"]
     t1, t2 = fixNames(t1, t2)
 
     t1score = 0
@@ -280,27 +301,6 @@ def mostAvgTeam(t1, t2, field):
         t1score += abs((len(field) - 1) / 2 - list_of_stat.index(data[t1][stat]))
         t2score += abs((len(field) - 1) / 2 - list_of_stat.index(data[t2][stat]))
     # print(sost1)
-
-    # meanSOS = mean(list(map(lambda x: data[replace(
-    #     x["team"])]["sos"] if "/" not in x["team"] else 0, field)))
-    # meanOff = mean(list(map(lambda x: data[replace(
-    #     x["team"])]["offensive"]if "/" not in x["team"] else 100, field)))
-    # meanDef = mean(list(map(lambda x: data[replace(
-    #     x["team"])]["defensive"]if "/" not in x["team"] else 100, field)))
-    # meanPS = mean(list(map(lambda x: data[replace(
-    #     x["team"])]["points_scored"] if "/" not in x["team"] else 70, field)))
-    # meanPA = mean(list(map(lambda x: data[replace(
-    #     x["team"])]["points_against"] if "/" not in x["team"] else 70, field)))
-    # t1score = abs(data[t1]["sos"] - meanSOS)/meanSOS + \
-    #     abs(data[t1]["offensive"] - meanOff)/meanOff + \
-    #     abs(data[t1]["defensive"] - meanDef)/meanDef + \
-    #     abs(data[t1]["points_scored"] - meanPS)/meanPS + \
-    #     abs(data[t1]["points_against"] - meanPA)/meanPA
-    # t2score = abs(data[t2]["sos"] - meanSOS)/meanSOS + \
-    #     abs(data[t2]["offensive"] - meanOff)/meanOff + \
-    #     abs(data[t2]["defensive"] - meanDef)/meanDef + \
-    #     abs(data[t2]["points_scored"] - meanPS)/meanPS + \
-    #     abs(data[t2]["points_against"] - meanPA)/meanPA
     return (
         t1score,
         t2score,
@@ -308,7 +308,9 @@ def mostAvgTeam(t1, t2, field):
     )
 
 
-def compareJerseys(t1, t2, field):
+def compareJerseys(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     jerseyNums1 = data[t1]["jersey_nums"]
     jerseyNums2 = data[t2]["jersey_nums"]
@@ -317,7 +319,9 @@ def compareJerseys(t1, t2, field):
     return std1, std2, max(std1 / (std1 + std2), std2 / (std1 + std2))
 
 
-def pointDifferential(t1, t2, field):
+def pointDifferential(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     PS1 = data[t1]["points_scored"]
     PS2 = data[t2]["points_scored"]
@@ -328,7 +332,9 @@ def pointDifferential(t1, t2, field):
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
 
 
-def pointsOffFouls(t1, t2, field):
+def pointsOffFouls(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     fouls1 = data[t1]["pf"]
     fouls2 = data[t2]["pf"]
@@ -341,7 +347,9 @@ def pointsOffFouls(t1, t2, field):
     return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
 
 
-def efficiencyMargin(t1, t2, field):
+def efficiencyMargin(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
     t1, t2 = fixNames(t1, t2)
     off1 = data[t1]["offensive"]
     off2 = data[t2]["offensive"]
@@ -349,18 +357,23 @@ def efficiencyMargin(t1, t2, field):
     def2 = data[t2]["defensive"]
     res1 = (off1 + def2) / 2
     res2 = (off2 + def1) / 2
-    return res1, res2, max(res1 / (res1 + res2), res2 / (res1 + res2))
+    chance = (0.5 * abs(res1 - res2) / 10) + 0.5
+    return res1, res2, chance
 
 
-def efficiencyMarginWithSOS(t1, t2, field):
-    if t1 not in list(data.keys()):
-        t1 = replace(t1)
-        if t1 not in list(data.keys()):
-            return 0, 100, 100
-    if t2 not in list(data.keys()):
-        t2 = replace(t2)
-        if t2 not in list(data.keys()):
-            return 100, 0, 100
+def efficiencyMarginWithSOS(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
+    t1, t2 = fixNames(t1, t2)
+    print(t1, t2)
+    # if t1 not in list(data.keys()):
+    #     t1 = replace(t1)
+    #     if t1 not in list(data.keys()):
+    #         return 0, 100, 100
+    # if t2 not in list(data.keys()):
+    #     t2 = replace(t2)
+    #     if t2 not in list(data.keys()):
+    #         return 100, 0, 100
     off1 = data[t1]["offensive"]
     off2 = data[t2]["offensive"]
     def1 = data[t1]["defensive"]
@@ -433,7 +446,11 @@ def findpaths(g, src, dst, writeGames=True, depth=5, others=[]):
                 queue.append((newpath, trans_score + team[1]))
 
 
-def transitiveWinScores(t1, t2, writePaths=True, depth=4):
+def transitiveWinScores(input_args):
+    t1 = input_args["team1"]
+    t2 = input_args["team2"]
+    writePaths = input_args.get("writePaths", False)
+    depth = input_args.get("depth", 4)
     t1, t2 = fixNames(t1, t2)
     print("Looking for", t1, "and", t2)
     source_idx = list(data.keys()).index(t1)
@@ -462,9 +479,10 @@ with open("stats.json") as f:
 g = buildGraph(data)
 
 
-def testMatch(method, team1, team2):
+def testMatch(method, team1, team2, site=""):
     print("\nUsing:", method.__name__)
-    team1_score, team2_score, chance = method(team1, team2)
+    combined_data = {"team1": team1, "team2": team2, "site": site, "field": None}
+    team1_score, team2_score, chance = method(combined_data)
     losing_odds = round((1 - chance) * 1000) / 10
     print(team1, ":", team1_score, "\t", team2, ":", team2_score)
     if team1_score > team2_score:
@@ -481,4 +499,4 @@ if __name__ == "__main__":
     others = []
     score = 0
     # testMatch(machineLearning, team1, team2)
-    testMatch(transitiveWinScores, team1, team2)
+    testMatch(efficiencyMarginWithSOS, team1, team2)

@@ -14,9 +14,8 @@ def challengeTeams():
     global assigned
     if request.method == "POST":
         data = request.get_json(force=True)
-        tuples = list(map(lambda arr: tuple(arr), data))
+        tuples = list(map(lambda arr: (arr["match"][0], arr["match"][1], arr["winner"]), data))
         assigned = tuples
-        print(assigned)
     return "0"
 
 
@@ -39,4 +38,4 @@ def getTeam(team_name):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

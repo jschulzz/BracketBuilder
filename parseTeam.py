@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 import json
 import re
+import io
+from colorthief import ColorThief
+from urllib.request import urlopen
 
 
 def getHeaderStat(name):
@@ -60,7 +63,31 @@ with open("html.json", "r+") as htmlfile:
                 print("Parsing", team, "-", idx)
                 soup = BeautifulSoup(html_list.get(team), "html.parser")
                 soup.prettify()
-
+                players = []
+                player_table = soup.find_all("table", {"id": "per_game"})[0].find_all("tbody")[0]
+                for player_html in player_table.find_all("tr"):
+                    player = {}
+                    player["name"] = str(player_html.find_all("td", {"data-stat": "player"})[0].get("csk", ""))
+                    player["started"] = int(player_html.find_all("td", {"data-stat": "gs"})[0].string)
+                    player["minutes"] = float(player_html.find_all("td", {"data-stat": "mp_per_g"})[0].string)
+                    player["fga"] = float(player_html.find_all("td", {"data-stat": "fga_per_g"})[0].string)
+                    player["fg"] = float(player_html.find_all("td", {"data-stat": "fg_per_g"})[0].string)
+                    player["fg2a"] = float(player_html.find_all("td", {"data-stat": "fg2a_per_g"})[0].string)
+                    player["fg2"] = float(player_html.find_all("td", {"data-stat": "fg2_per_g"})[0].string)
+                    player["fg3a"] = float(player_html.find_all("td", {"data-stat": "fg3a_per_g"})[0].string)
+                    player["fg3"] = float(player_html.find_all("td", {"data-stat": "fg3_per_g"})[0].string)
+                    player["fta"] = float(player_html.find_all("td", {"data-stat": "fta_per_g"})[0].string)
+                    player["ft"] = float(player_html.find_all("td", {"data-stat": "ft_per_g"})[0].string)
+                    player["orb"] = float(player_html.find_all("td", {"data-stat": "orb_per_g"})[0].string)
+                    player["drb"] = float(player_html.find_all("td", {"data-stat": "drb_per_g"})[0].string)
+                    player["ast"] = float(player_html.find_all("td", {"data-stat": "ast_per_g"})[0].string)
+                    player["stl"] = float(player_html.find_all("td", {"data-stat": "stl_per_g"})[0].string)
+                    player["blk"] = float(player_html.find_all("td", {"data-stat": "blk_per_g"})[0].string)
+                    player["tov"] = float(player_html.find_all("td", {"data-stat": "tov_per_g"})[0].string)
+                    player["pf"] = float(player_html.find_all("td", {"data-stat": "pf_per_g"})[0].string)
+                    player["pts"] = float(player_html.find_all("td", {"data-stat": "pts_per_g"})[0].string)
+                    # print(player)
+                    players.append(player)
                 # specific player stats
                 heights = getPlayerStat("height", lambda x: x > 0, True)
                 weights = getPlayerStat("weight", lambda x: x > 0, True)
@@ -73,6 +100,15 @@ with open("html.json", "r+") as htmlfile:
 
                 # general team stats/data
                 logo_url = soup.find_all("img", attrs={"class": "teamlogo"})[0]["src"]
+                main_color = "000000"
+                try:
+                    fd = urlopen(logo_url)
+                    f = io.BytesIO(fd.read())
+                    color_thief = ColorThief(f)
+                    c = color_thief.get_palette(color_count=2)[0]
+                    main_color = '#%02x%02x%02x' % c
+                except:
+                    pass
                 O_rtg = getHeaderStat("ORtg:")
                 D_rtg = getHeaderStat("DRtg:")
                 SOS = getHeaderStat("SOS")
@@ -92,6 +128,7 @@ with open("html.json", "r+") as htmlfile:
                 if nums == []:
                     print(team)
 
+                scraped_stats["team_stats"][team]["players"] = players
                 scraped_stats["team_stats"][team]["weights"] = weights
                 scraped_stats["team_stats"][team]["heights"] = heights
                 scraped_stats["team_stats"][team]["jersey_nums"] = nums
@@ -103,6 +140,7 @@ with open("html.json", "r+") as htmlfile:
                 scraped_stats["team_stats"][team]["points_scored"] = PS
                 scraped_stats["team_stats"][team]["points_against"] = PA
                 scraped_stats["team_stats"][team]["logo_url"] = logo_url
+                scraped_stats["team_stats"][team]["main_color"] = main_color
                 scraped_stats["team_stats"][team]["wins"] = game_results[team]["wins"]
                 statfile.seek(0)
                 json.dump(scraped_stats, statfile, indent=4)
