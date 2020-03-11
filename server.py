@@ -27,7 +27,7 @@ def getStarterBracket():
         tuples = list(map(lambda arr: (arr["match"][0], arr["match"][1], arr["winner"]), data))
         assigned = tuples
     print(assigned)
-    bracket_result = bracket.buildInitialBracket(method=compareFns.efficiencyMargin, assigned=assigned)
+    bracket_result = bracket.buildInitialBracket(method=compareFns.machineLearning, assigned=assigned)
     return bracket_result
 
 

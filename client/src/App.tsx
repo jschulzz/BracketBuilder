@@ -12,6 +12,7 @@ import { Bar } from "react-chartjs-2";
 import hexToRgba from "hex-to-rgba";
 import isEqual from "lodash/isEqual";
 import Modal, { ModalTransition } from "@atlaskit/modal-dialog";
+import Spinner from "@atlaskit/spinner";
 
 const App: React.FC = () => {
 	const [teamData, setTeamData] = useState<PythonBracketData>({});
@@ -21,13 +22,14 @@ const App: React.FC = () => {
 	>(undefined);
 	const [compareData, setCompareData] = useState<any>(undefined);
 	const [assignedMatches, setAssignedMatches] = useState<Assignment[]>([]);
+	const [infoBox, setInfoBox] = useState<any>(undefined);
 
 	const getTeam = async team_name => {
 		const res = await fetch("http://localhost:5000/team/" + team_name);
 		const data = res.json();
 		return data;
 	};
-	const fetchData = async () => {
+	const getBracket = async () => {
 		if (!dataRecieved) {
 			const res = await fetch("http://localhost:5000/", {
 				method: "post",
@@ -41,7 +43,7 @@ const App: React.FC = () => {
 	};
 
 	useEffect(() => {
-		fetchData();
+		getBracket();
 	});
 
 	function assignMatch(info: PythonBracketTeam) {
@@ -361,7 +363,19 @@ const App: React.FC = () => {
 					</Modal>
 				)}
 			</ModalTransition>
-			<P5Wrapper sketch={sketch} bracket={teamData} />
+			{!teamData.round_of_64 && (
+				<span
+					style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: "30%",
+                        transform: "translate(-50%, -50%)"
+					}}
+				>
+					<Spinner size="xlarge" />
+				</span>
+			)}
+			{<P5Wrapper sketch={sketch} bracket={teamData} />}
 			{assignedMatches.map(assignment => {
 				return (
 					<div>
