@@ -61,17 +61,30 @@ def createInputList(team_stats):
     output_current.append(team_stats["offensive"] / 100)
     # defensive efficiency
     output_current.append(team_stats["defensive"] / 100)
-    # output_current.append(mean(team_stats["heights"]) / 80)  # average height
-    # output_current.append(mean(team_stats["weights"]) / 280)  # average weight
-    # # average height of starters
-    # output_current.append(mean(team_stats["heights"][:5]) / 80)
-    # # average weight of starters
-    # output_current.append(mean(team_stats["weights"][:5]) / 280)
+    players = sorted(team_stats["players"], key=lambda x: x["minutes"], reverse=True)
+    for p in players[:5]:
+        output_current.append(p["minutes"] / 40)
+        output_current.append(p["fga"] / 10)
+        output_current.append(p["fg"] / 10)
+        output_current.append(p["fg2a"] / 10)
+        output_current.append(p["fg2"] / 10)
+        output_current.append(p["fg3a"] / 10)
+        output_current.append(p["fg3"] / 10)
+        output_current.append(p["fta"] / 10)
+        output_current.append(p["ft"] / 10)
+        output_current.append(p["orb"] / 10)
+        output_current.append(p["drb"] / 10)
+        output_current.append(p["ast"] / 10)
+        output_current.append(p["stl"] / 10)
+        output_current.append(p["blk"] / 10)
+        output_current.append(p["tov"] / 10)
+        output_current.append(p["pf"] / 5)
+        output_current.append(p["pts"] / 20)
 
     # starter's points
-    output_current.append(sum(team_stats["player_pts"][5:]) / 100)
+    # output_current.append(sum(team_stats["player_pts"][5:]) / 100)
     # starter's point weight
-    output_current.append(sum(team_stats["player_pts"][5:]) / team_stats["pts_per_g"])
+    # output_current.append(sum(team_stats["player_pts"][5:]) / team_stats["pts_per_g"])
     return output_current
 
 
@@ -118,8 +131,8 @@ def createModel(input_length):
     # model.add(Dropout(0.1))
     model.add(Dense(75, activation="relu"))
     model.add(Dropout(0.1))
-    model.add(Dense(10, activation="relu", kernel_initializer="normal"))
-    model.add(Dropout(0.1))
+    # model.add(Dense(10, activation="relu", kernel_initializer="normal"))
+    # model.add(Dropout(0.1))
     model.add(Dense(1, activation="sigmoid", kernel_initializer="normal"))
     model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
     return model
@@ -155,8 +168,8 @@ if __name__ == "__main__":
     model.fit(
         np.asarray(input_list),
         np.asarray(output_list),
-        epochs=100,
-        batch_size=256,
+        epochs=500,
+        batch_size=32,
         callbacks=callbacks_list,
         validation_split=0.2,
     )
