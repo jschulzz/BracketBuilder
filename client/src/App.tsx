@@ -280,8 +280,7 @@ const App: React.FC = () => {
 					setSelectedTeam(info);
 					getTeam(info.name).then((home_data: PythonTeamData) => {
 						getTeam(info.opponent).then((away_data: PythonTeamData) => {
-							console.log(home_data);
-							console.log(away_data);
+							console.log(home_data, away_data, info);
 							let loserName = info.name;
 							if (info.name === info.winner) {
 								loserName = info.opponent;

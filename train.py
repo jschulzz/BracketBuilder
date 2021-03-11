@@ -8,6 +8,7 @@ from keras.layers import Dropout
 from keras import metrics, optimizers
 import numpy as np
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from operator import getitem
 
 # TODO: To be honest, this is pretty clean and straightforward. Maybe still toy with more training ideas?
 
@@ -24,33 +25,44 @@ def createInputList(team_stats):
     # field goal percentage
     output_current.append(team_stats["fg_pct"])
     # field goal attempts per game
-    output_current.append(team_stats["fga"] / team_stats["g"])
+    output_current.append(team_stats["fga_per_g"])
+    # output_current.append(team_stats["fga"] / team_stats["g"])
     # 2's percentage
     output_current.append(team_stats["fg2_pct"])
     # 2's attempts per game
-    output_current.append(team_stats["fg2a"] / team_stats["g"])
+    # output_current.append(team_stats["fg2a"] / team_stats["g"])
+    output_current.append(team_stats["fg2a_per_g"])
     # 3's percentage
     output_current.append(team_stats["fg3_pct"])
     # 3's attempts per game
-    output_current.append(team_stats["fg3a"] / team_stats["g"])
+    # output_current.append(team_stats["fg3a"] / team_stats["g"])
+    output_current.append(team_stats["fg3a_per_g"])
     # Freethrow percentage
     output_current.append(team_stats["ft_pct"])
     # Freethrow attempts per game
-    output_current.append(team_stats["fta"] / team_stats["g"])
+    # output_current.append(team_stats["fta"] / team_stats["g"])
+    output_current.append(team_stats["fta_per_g"])
     # offensive rebounds per game
-    output_current.append(team_stats["orb"] / team_stats["g"])
+    # output_current.append(team_stats["orb"] / team_stats["g"])
+    output_current.append(team_stats["orb_per_g"])
     # defensive rebounds per game
-    output_current.append(team_stats["drb"] / team_stats["g"])
+    # output_current.append(team_stats["drb"] / team_stats["g"])
+    output_current.append(team_stats["drb_per_g"])
     # assists per game
-    output_current.append(team_stats["ast"] / team_stats["g"])
+    # output_current.append(team_stats["ast"] / team_stats["g"])
+    output_current.append(team_stats["ast_per_g"])
     # steals per game
-    output_current.append(team_stats["stl"] / team_stats["g"])
+    # output_current.append(team_stats["stl"] / team_stats["g"])
+    output_current.append(team_stats["stl_per_g"])
     # blocks per game
-    output_current.append(team_stats["blk"] / team_stats["g"])
+    # output_current.append(team_stats["blk"] / team_stats["g"])
+    output_current.append(team_stats["blk_per_g"])
     # turnovers per game
-    output_current.append(team_stats["tov"] / team_stats["g"])
+    # output_current.append(team_stats["tov"] / team_stats["g"])
+    output_current.append(team_stats["tov_per_g"])
     # fouls per game
-    output_current.append(team_stats["pf"] / team_stats["g"])
+    # output_current.append(team_stats["pf"] / team_stats["g"])
+    output_current.append(team_stats["pf_per_g"])
     # points per game
     output_current.append(team_stats["pts_per_g"] / 100)
     # strength of schedule
@@ -61,25 +73,30 @@ def createInputList(team_stats):
     output_current.append(team_stats["offensive"] / 100)
     # defensive efficiency
     output_current.append(team_stats["defensive"] / 100)
-    players = sorted(team_stats["players"], key=lambda x: x["minutes"], reverse=True)
-    for p in players[:5]:
-        output_current.append(p["minutes"] / 40)
-        output_current.append(p["fga"] / 10)
-        output_current.append(p["fg"] / 10)
-        output_current.append(p["fg2a"] / 10)
-        output_current.append(p["fg2"] / 10)
-        output_current.append(p["fg3a"] / 10)
-        output_current.append(p["fg3"] / 10)
-        output_current.append(p["fta"] / 10)
-        output_current.append(p["ft"] / 10)
-        output_current.append(p["orb"] / 10)
-        output_current.append(p["drb"] / 10)
-        output_current.append(p["ast"] / 10)
-        output_current.append(p["stl"] / 10)
-        output_current.append(p["blk"] / 10)
-        output_current.append(p["tov"] / 10)
-        output_current.append(p["pf"] / 5)
-        output_current.append(p["pts"] / 20)
+    players = sorted(
+        list(team_stats["players"].items()),
+        key=lambda x: x[1].get("minutes", 0),
+        reverse=True,
+    )
+    for (name, stats) in list(players)[:5]:
+        # print(p)
+        output_current.append(stats["minutes"] / 40)
+        output_current.append(stats["fga"] / 10)
+        output_current.append(stats["fg"] / 10)
+        output_current.append(stats["fg2a"] / 10)
+        output_current.append(stats["fg2"] / 10)
+        output_current.append(stats["fg3a"] / 10)
+        output_current.append(stats["fg3"] / 10)
+        output_current.append(stats["fta"] / 10)
+        output_current.append(stats["ft"] / 10)
+        output_current.append(stats["orb"] / 10)
+        output_current.append(stats["drb"] / 10)
+        output_current.append(stats["ast"] / 10)
+        output_current.append(stats["stl"] / 10)
+        output_current.append(stats["blk"] / 10)
+        output_current.append(stats["tov"] / 10)
+        output_current.append(stats["pf"] / 5)
+        output_current.append(stats["pts"] / 20)
 
     # starter's points
     # output_current.append(sum(team_stats["player_pts"][5:]) / 100)

@@ -3,17 +3,24 @@ from selenium import webdriver
 import requests
 import time
 import json
+import sys
 
 # browser = webdriver.Chrome("chromedriver")
 baseUrl = "https://www.sports-reference.com/cbb/boxscores/index.cgi?"
 result_dict = {}
 result_dict["game_results"] = {}
 
+start_year = 2020
+if len(sys.argv) > 1:
+    start_year = int(sys.argv[1])
 
-for year in [2019, 2020]:
+filename = "games_" + str(start_year) + ".json"
+
+
+for year in [start_year, start_year + 1]:
     start_month = 1
     end_month = 4
-    if year == 2019:
+    if year == start_year:
         start_month = 11
         end_month = 12
     for month in range(start_month, end_month + 1):
@@ -54,9 +61,9 @@ for year in [2019, 2020]:
                         result_dict["game_results"][winning_team] = {}
                         result_dict["game_results"][winning_team]["wins"] = {}
                     result_dict["game_results"][winning_team]["link"] = winning_link
-                    result_dict["game_results"][winning_team]["wins"][
-                        losing_team
-                    ] = (winning_score - losing_score)
+                    result_dict["game_results"][winning_team]["wins"][losing_team] = (
+                        winning_score - losing_score
+                    )
 
                     if losing_team not in result_dict["game_results"]:
                         result_dict["game_results"][losing_team] = {}
@@ -65,5 +72,5 @@ for year in [2019, 2020]:
                 else:
                     continue
             print("Completed ", month, "/", day, "/", year)
-            with open("games.json", "w") as outfile:
+            with open(filename, "w") as outfile:
                 json.dump(result_dict, outfile)

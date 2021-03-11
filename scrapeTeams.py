@@ -1,10 +1,20 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+from bs4 import BeautifulSoup
+
 import requests
 import time
 import json
 import re
+import sys
 
-# browser = webdriver.Chrome("chromedriver")
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')  # Last I checked this was necessary.
+browser = webdriver.Chrome("chromedriver", chrome_options=options)
+
+# browser = webdriver.PhantomJS()
 baseUrl = "https://www.sports-reference.com/"
 result_dict = {}
 
@@ -12,6 +22,8 @@ result_dict = {}
 # The issue is I always had to re-run it when I had a new datapoint idea
 # TODO: Maybe store the entire html and then parse that as needed?
 # would be a lot faster than having to pull each page each new idea
+
+
 
 
 def transformTeamName(t):
@@ -41,16 +53,24 @@ def transformTeamName(t):
 
 
 def getHTML(url):
-    # browser.get(url)
-    r = requests.get(url)
-    html = r.text
-    # html = browser.execute_script("return document.documentElement.outerHTML")
+    browser.get(url)
+    # r = requests.get(url)
+    # html = r.text
+    html = browser.page_source
     return html
+
+start_year = 2020
+if len(sys.argv) > 1:
+    start_year = int(sys.argv[1])
+
+gamefile = "games_" + str(start_year) + ".json"
+htmlfile = "html_" + str(start_year) + ".json"
+
 
 
 teamdata = {}
 data = {}
-with open("games.json", "r+") as readfile:
+with open(gamefile, "r+") as readfile:
     game_data = json.load(readfile)
     data["html"] = {}
     results = game_data["game_results"]
@@ -60,7 +80,7 @@ with open("games.json", "r+") as readfile:
             teams_with_wins[key] = value
     total_known_teams = len(list(teams_with_wins.keys()))
     
-    with open("html.json", "w") as writefile:
+    with open(htmlfile, "w") as writefile:
         for idx, team in enumerate(teams_with_wins):
             print(str(idx) + "/" + str(total_known_teams), team)
             if teams_with_wins[team]["link"] is not None:
