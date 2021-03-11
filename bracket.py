@@ -40,31 +40,33 @@ def splitPlayIns(team):
 
 
 def getSite(remaining_bracket, locations):
-    site = ""
-    if len(remaining_bracket) > 16:
-        region_num = math.floor((i) / (len(remaining_bracket) / 8))
-        site_num = math.floor(i / (len(remaining_bracket) / 32)) % 4
-        site = locations[region_num][site_num]
-        print(site)
-    elif len(remaining_bracket) > 4:
-        region_num = math.floor(i / (len(remaining_bracket) / 8))
-        site = locations[region_num][4]
-        print(locations[region_num], locations[region_num][4])
-        print(site)
-    else:
-        site = "Minneapolis, MN"  # Final Site at time of update
+    site = "Indianapolis, IN"
+    # if len(remaining_bracket) > 16:
+    #     region_num = math.floor((i) / (len(remaining_bracket) / 8))
+    #     site_num = math.floor(i / (len(remaining_bracket) / 32)) % 4
+    #     site = locations[region_num][site_num]
+    #     print(site)
+    # elif len(remaining_bracket) > 4:
+    #     region_num = math.floor(i / (len(remaining_bracket) / 8))
+    #     site = locations[region_num][4]
+    #     print(locations[region_num], locations[region_num][4])
+    #     print(site)
+    # else:
+    #     site = "Minneapolis, MN"  # Final Site at time of update
     return site
 
 
-def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
+def buildInitialBracket(method=compareFns.machineLearning, assigned=[]):
+    
 
     sortorder = [0, 15, 7, 8, 4, 11, 3, 12, 5, 10, 2, 13, 6, 9, 1, 14]
+    # sortorder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     print(assigned)
     with open("bracketology.json") as f:
         team_names = json.load(f)
         east = [
             {
-                "name": list(np.array(team_names["E"])[sortorder])[i],
+                "name": list(np.array(team_names["REGION 1"]))[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
                 "opponent": "",
@@ -74,7 +76,7 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
         ]
         midwest = [
             {
-                "name": list(np.array(team_names["M"])[sortorder])[i],
+                "name": list(np.array(team_names["REGION 2"]))[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
                 "opponent": "",
@@ -84,7 +86,7 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
         ]
         west = [
             {
-                "name": list(np.array(team_names["W"])[sortorder])[i],
+                "name": list(np.array(team_names["REGION 3"]))[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
                 "opponent": "",
@@ -94,7 +96,7 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
         ]
         south = [
             {
-                "name": list(np.array(team_names["S"])[sortorder])[i],
+                "name": list(np.array(team_names["REGION 4"]))[i],
                 "seed": sortorder[i],
                 "overall_chance": 1.0,
                 "opponent": "",
@@ -120,7 +122,7 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
         team["matchup_chance"] = 1.0
         team["opponent"] = bracket_list[idx + 1 if idx % 2 == 0 else idx - 1]["name"]
         if "/" in team["name"]:
-            t1, t2 = team["name"].split(" / ")
+            t1, t2 = team["name"].split("/")
             winner, loser, odds = pickWinner(t1, t2, method, bracket_list, "Dayton, OH")
             bracket_list[idx]["name"] = winner
             bracket_list[idx]["overall_chance"] = float(odds)

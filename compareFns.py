@@ -67,7 +67,10 @@ replacements = {
     "Charleston": "College of Charleston",
     "UT Arlington": "Texas-Arlington",
     "Bowling Green": "Bowling Green State",
-    "North Carolina A&T": "North Carolina A&T;",
+    "N.C. A&T": "North Carolina A&T;",
+    "UNCG": "UNC Greensboro",
+    "Loyola Chicago": "Loyola (IL)",
+    "W\. Kentucky": "Western Kentucky",
 }
 
 
@@ -475,14 +478,20 @@ def transitiveWinScores(input_args):
 
 data = {}
 bracket_data = {}
-with open("stats.json") as f:
+with open("stats_2020.json") as f:
     data = json.load(f)["team_stats"]
 g = buildGraph(data)
 
 
 def testMatch(method, team1, team2, site=""):
     print("\nUsing:", method.__name__)
-    combined_data = {"team1": team1, "team2": team2, "site": site, "field": None, "writePaths": True}
+    combined_data = {
+        "team1": team1,
+        "team2": team2,
+        "site": site,
+        "field": None,
+        "writePaths": True,
+    }
     team1_score, team2_score, chance = method(combined_data)
     losing_odds = round((1 - chance) * 1000) / 10
     print(team1, ":", team1_score, "\t", team2, ":", team2_score)
@@ -500,5 +509,6 @@ if __name__ == "__main__":
     others = []
     score = 0
     # testMatch(machineLearning, team1, team2)
-    testMatch(machineLearning, team1, team2)
-    testMatch(pointDifferential, team1, team2)
+    # testMatch(machineLearning, team1, team2)
+    # testMatch(pointDifferential, team1, team2)
+    testMatch(efficiencyMarginWithSOS, team1, team2)
