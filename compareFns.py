@@ -53,8 +53,6 @@ def searchfor(t):
 
 
 replacements = {
-    "St$": "State",
-    "St\.": "Saint",
     "Prairie View A&M": "Prairie View",
     "\(pa\)": "(PA)",
     "North Carolina$": "UNC",
@@ -68,9 +66,21 @@ replacements = {
     "UT Arlington": "Texas-Arlington",
     "Bowling Green": "Bowling Green State",
     "N.C. A&T": "North Carolina A&T;",
+    "Brigham Young": "BYU",
     "UNCG": "UNC Greensboro",
     "Loyola Chicago": "Loyola (IL)",
     "W\. Kentucky": "Western Kentucky",
+    "Norfolk St\.": "Norfolk State",
+    "Colorado St\.": "Colorado State",
+    "Oklahoma St\.": "Oklahoma State",
+    "Michigan St\.": "Michigan State",
+    "Florida St\.": "Florida State",
+    "Cleveland St\.": "Cleveland State",
+    "Wichita St\.": "Wichita State",
+    "Morehead St\.": "Morehead State",
+    "San Diego St\.": "San Diego State",
+    "Nicholls St\.": "Nicholls State",
+    "Appalachian St\.": "Appalachian State",
 }
 
 

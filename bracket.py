@@ -13,7 +13,7 @@ def findWinner(name, search_list):
     return list(filter(lambda x: x["name"] == name, search_list))[0]
 
 
-def pickWinner(team1, team2, method, field, site):
+def pickWinner(team1, team2, method):
     scoreOfT1, scoreofT2, chance = method(
         {"team1": team1, "team2": team2, "site": None, "field": None}
     )
@@ -56,54 +56,43 @@ def getSite(remaining_bracket, locations):
     return site
 
 
-def buildInitialBracket(method=compareFns.machineLearning, assigned=[]):
-    
+def getOpponent(team_index, field):
+    opponent_index = team_index + 1 if team_index % 2 == 0 else team_index - 1
+    return field[opponent_index]
 
-    sortorder = [0, 15, 7, 8, 4, 11, 3, 12, 5, 10, 2, 13, 6, 9, 1, 14]
-    # sortorder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+def buildTeam(teamData, method):
+    if teamData["playIn"]:
+        winner, loser, odds = pickWinner(
+            teamData["playInTeams"][0], teamData["playInTeams"][1], method
+        )
+        return {
+            "name": winner,
+            "seed": teamData["seed"] - 1,
+            "overall_chance": float(odds),
+            "matchup_chance": float(odds),
+            "opponent": "",
+            "winner": winner,
+        }
+
+    else:
+        return {
+            "name": teamData["team"],
+            "seed": teamData["seed"] - 1,
+            "overall_chance": 1.0,
+            "opponent": "",
+            "winner": "",
+        }
+
+
+def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
     print(assigned)
     with open("bracketology.json") as f:
-        team_names = json.load(f)
-        east = [
-            {
-                "name": list(np.array(team_names["REGION 1"]))[i],
-                "seed": sortorder[i],
-                "overall_chance": 1.0,
-                "opponent": "",
-                "winner": "",
-            }
-            for i in range(0, 16)
-        ]
-        midwest = [
-            {
-                "name": list(np.array(team_names["REGION 2"]))[i],
-                "seed": sortorder[i],
-                "overall_chance": 1.0,
-                "opponent": "",
-                "winner": "",
-            }
-            for i in range(0, 16)
-        ]
-        west = [
-            {
-                "name": list(np.array(team_names["REGION 3"]))[i],
-                "seed": sortorder[i],
-                "overall_chance": 1.0,
-                "opponent": "",
-                "winner": "",
-            }
-            for i in range(0, 16)
-        ]
-        south = [
-            {
-                "name": list(np.array(team_names["REGION 4"]))[i],
-                "seed": sortorder[i],
-                "overall_chance": 1.0,
-                "opponent": "",
-                "winner": "",
-            }
-            for i in range(0, 16)
-        ]
+        bracket = json.load(f)
+        east = [buildTeam(bracket["regions"][0]["teams"][i], method) for i in range(0, 16)]
+        midwest = [buildTeam(bracket["regions"][1]["teams"][i], method) for i in range(0, 16)]
+        west = [buildTeam(bracket["regions"][2]["teams"][i], method) for i in range(0, 16)]
+        south = [buildTeam(bracket["regions"][3]["teams"][i], method) for i in range(0, 16)]
 
     bracket_list = east + west + south + midwest
 
@@ -120,16 +109,7 @@ def buildInitialBracket(method=compareFns.machineLearning, assigned=[]):
         team["name"] = name
         team["overall_chance"] = 1.0
         team["matchup_chance"] = 1.0
-        team["opponent"] = bracket_list[idx + 1 if idx % 2 == 0 else idx - 1]["name"]
-        if "/" in team["name"]:
-            t1, t2 = team["name"].split("/")
-            winner, loser, odds = pickWinner(t1, t2, method, bracket_list, "Dayton, OH")
-            bracket_list[idx]["name"] = winner
-            bracket_list[idx]["overall_chance"] = float(odds)
-            bracket_list[idx]["matchup_chance"] = float(odds)
-            bracket_list[idx]["opponent"] = bracket_list[
-                idx + 1 if idx % 2 == 0 else idx - 1
-            ]["name"]
+        team["opponent"] = getOpponent(idx, bracket_list)["name"]
 
     filename = "client/src/result_bracket.json"
     data = {}
@@ -150,9 +130,7 @@ def buildInitialBracket(method=compareFns.machineLearning, assigned=[]):
             site = "Canada"
             # site = getSite(this_round_duplicate, locations)
 
-            winner_name, loser_name, chance = pickWinner(
-                t1["name"], t2["name"], method, this_round_duplicate, site
-            )
+            winner_name, loser_name, chance = pickWinner(t1["name"], t2["name"], method)
 
             if isAssigned(assigned, t1, t2, loser_name):
                 print("Match Defined", (t1["name"], t2["name"], loser_name))

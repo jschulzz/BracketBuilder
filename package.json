@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cd client && npm start",
-    "getBracket": "node ./node_modules/bracket-data/build/bracketology.js -s ncaam > bracketology.json",
+    "getBracket": "./node_modules/.bin/get-bracket > bracketology.js",
     "getTeams": "python scrapeGames.py && python scrapeTeams.py && python parseTeam.py"
   },
   "repository": {
@@ -17,9 +17,9 @@
   "dependencies": {
     "@atlaskit/avatar": "^17.1.7",
     "@atlaskit/drawer": "^5.3.2",
-    "bracket-data": "^4.6.0",
     "cheerio": "^1.0.0-rc.2",
     "csv-writer": "^1.6.0",
+    "get-bracket": "^1.1.2",
     "http-server": "^0.11.1",
     "lodash": "^4.17.19",
     "minimist": "^1.2.3",
