@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
-import compareFns
+from ComparisonFunctions.utils import fixName
+from  ComparisonFunctions.machineLearning import comparison
 import bracket
 import json
 
@@ -27,7 +28,7 @@ def getStarterBracket():
         tuples = list(map(lambda arr: (arr["match"][0], arr["match"][1], arr["winner"]), data))
         assigned = tuples
     print(assigned)
-    bracket_result = bracket.buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=assigned)
+    bracket_result = bracket.buildInitialBracket(compareFunction=comparison, assigned=assigned)
     return bracket_result
 
 
@@ -36,7 +37,7 @@ def getTeam(team_name):
     data = {}
     with open("stats.json") as stats:
         data = json.load(stats)["team_stats"]
-        fixed_name = compareFns.fixName(team_name)
+        fixed_name = fixName(team_name)
         stats.close()   
     return data[fixed_name]
 
