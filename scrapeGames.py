@@ -14,7 +14,7 @@ start_year = 2020
 if len(sys.argv) > 1:
     start_year = int(sys.argv[1])
 
-filename = "games_" + str(start_year) + ".json"
+filename = "/statfiles/games_" + str(start_year) + ".json"
 
 
 for year in [start_year, start_year + 1]:

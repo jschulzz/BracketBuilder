@@ -11,3 +11,4 @@
 
 *.code-workspace
 /ComparisonFunctions/__pycache__
+/stat-scripts
