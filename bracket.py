@@ -1,8 +1,9 @@
 import json
-import compareFns
 import numpy as np
 import copy
 import math
+from ComparisonFunctions import CompareFunction
+from ComparisonFunctions.efficiencyWithSOS import comparison
 
 
 def mapOdds(chance):
@@ -13,12 +14,9 @@ def findWinner(name, search_list):
     return list(filter(lambda x: x["name"] == name, search_list))[0]
 
 
-def pickWinner(team1, team2, method):
-    scoreOfT1, scoreofT2, chance = method(
-        {"team1": team1, "team2": team2, "site": None, "field": None}
-    )
-    want_highest = True
-    # want_highest depends on the compareFn used
+def pickWinner(team1, team2, compareFunction: CompareFunction):
+    scoreOfT1, scoreofT2, chance = compareFunction.compare(team1, team2)
+    want_highest = compareFunction.wantHighest
     winning_score = mapOdds(chance)
     losing_score = mapOdds(1 - chance)
     if (want_highest and scoreOfT1 > scoreofT2) or (
@@ -29,15 +27,6 @@ def pickWinner(team1, team2, method):
     else:
         print(team2, "beats", team1, ":", winning_score * 100, "-", losing_score * 100)
         return team2, team1, winning_score
-
-
-def splitPlayIns(team):
-    seed = team["seed"]
-    t1, t2 = team["name"].split(" / ")
-    newT1 = {"seed": seed, "name": t1}
-    newT2 = {"seed": seed, "name": t2}
-    return newT1, newT2
-
 
 def getSite(remaining_bracket, locations):
     site = "Indianapolis, IN"
@@ -61,10 +50,10 @@ def getOpponent(team_index, field):
     return field[opponent_index]
 
 
-def buildTeam(teamData, method):
+def buildTeam(teamData, compareFunction):
     if teamData["playIn"]:
         winner, loser, odds = pickWinner(
-            teamData["playInTeams"][0], teamData["playInTeams"][1], method
+            teamData["playInTeams"][0], teamData["playInTeams"][1], compareFunction
         )
         return {
             "name": winner,
@@ -72,7 +61,7 @@ def buildTeam(teamData, method):
             "overall_chance": float(odds),
             "matchup_chance": float(odds),
             "opponent": "",
-            "winner": winner,
+            "winner": winner
         }
 
     else:
@@ -85,14 +74,14 @@ def buildTeam(teamData, method):
         }
 
 
-def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
+def buildInitialBracket(compareFunction=comparison, assigned=[]):
     print(assigned)
     with open("bracketology.json") as f:
         bracket = json.load(f)
-        east = [buildTeam(bracket["regions"][0]["teams"][i], method) for i in range(0, 16)]
-        midwest = [buildTeam(bracket["regions"][1]["teams"][i], method) for i in range(0, 16)]
-        west = [buildTeam(bracket["regions"][2]["teams"][i], method) for i in range(0, 16)]
-        south = [buildTeam(bracket["regions"][3]["teams"][i], method) for i in range(0, 16)]
+        east = [buildTeam(bracket["regions"][0]["teams"][i], compareFunction) for i in range(0, 16)]
+        midwest = [buildTeam(bracket["regions"][1]["teams"][i], compareFunction) for i in range(0, 16)]
+        west = [buildTeam(bracket["regions"][2]["teams"][i], compareFunction) for i in range(0, 16)]
+        south = [buildTeam(bracket["regions"][3]["teams"][i], compareFunction) for i in range(0, 16)]
 
     bracket_list = east + west + south + midwest
 
@@ -100,10 +89,8 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
         opponent_idx = idx + 1 if idx % 2 == 0 else idx - 1
         bracket_list[idx]["opponent"] = bracket_list[opponent_idx]["name"]
 
-    # quickly decide the winners of the play-ins
+    # initial team transformation
     for idx, team in enumerate(bracket_list):
-        # print(team)
-
         name = team["name"]
         team = {}
         team["name"] = name
@@ -122,15 +109,13 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
     next_round = bracket_list
 
     while len(this_round) > 1:
-        this_round_duplicate = copy.deepcopy(this_round)
         list_len = len(this_round)
         for i in range(0, int(list_len / 2)):
             t1 = this_round[i]
             t2 = this_round[i + 1]
-            site = "Canada"
             # site = getSite(this_round_duplicate, locations)
 
-            winner_name, loser_name, chance = pickWinner(t1["name"], t2["name"], method)
+            winner_name, loser_name, chance = pickWinner(t1["name"], t2["name"], compareFunction)
 
             if isAssigned(assigned, t1, t2, loser_name):
                 print("Match Defined", (t1["name"], t2["name"], loser_name))
@@ -166,9 +151,6 @@ def buildInitialBracket(method=compareFns.efficiencyMarginWithSOS, assigned=[]):
             past_round[past_round_idx + 1]["winner"] = team["name"]
         data["round_of_" + str(len(past_round))] = copy.deepcopy(past_round)
         this_round = next_round
-
-        # data["round_of_" + str(len(this_round))] = copy.deepcopy(this_round)
-
     return data
 
 

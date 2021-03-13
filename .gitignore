@@ -10,3 +10,4 @@
 *.otf
 
 *.code-workspace
+/ComparisonFunctions/__pycache__
