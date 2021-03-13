@@ -8,7 +8,7 @@ def defaultOddsFunction(score1, score2):
 
 class CompareFunction:
     data = {}
-    with open("stats_2020.json") as f:
+    with open("statfiles/stats_2020.json") as f:
         data = json.load(f)["team_stats"]
 
     ###

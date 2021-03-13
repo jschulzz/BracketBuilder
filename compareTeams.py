@@ -1,6 +1,6 @@
 import sys
 from ComparisonFunctions import CompareFunction
-from ComparisonFunctions.circleOfSuck import comparison
+from ComparisonFunctions.efficiencyWithSOS import comparison
 from bracket import pickWinner
 
 if __name__ == "__main__":

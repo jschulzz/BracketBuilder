@@ -63,8 +63,8 @@ start_year = 2020
 if len(sys.argv) > 1:
     start_year = int(sys.argv[1])
 
-gamefile = "games_" + str(start_year) + ".json"
-htmlfile = "html_" + str(start_year) + ".json"
+gamefile = "/statfiles/games_" + str(start_year) + ".json"
+htmlfile = "/statfiles/html_" + str(start_year) + ".json"
 
 
 

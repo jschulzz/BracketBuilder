@@ -55,9 +55,9 @@ start_year = 2020
 if len(sys.argv) > 1:
     start_year = int(sys.argv[1])
 
-gameFilename = "games_" + str(start_year) + ".json"
-htmlFilename = "html_" + str(start_year) + ".json"
-statsFilename = "stats_" + str(start_year) + ".json"
+gameFilename = "statfiles/games_" + str(start_year) + ".json"
+htmlFilename = "statfiles/html_" + str(start_year) + ".json"
+statsFilename = "statfiles/stats_" + str(start_year) + ".json"
 
 with open(htmlFilename, "r+") as htmlfile:
     with open(gameFilename, "r+") as gamefile:

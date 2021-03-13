@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cd client && npm start",
-    "getBracket": "./node_modules/.bin/get-bracket > bracketology.js",
+    "getBracket": "./node_modules/.bin/get-bracket > bracketology.json",
     "getTeams": "python scrapeGames.py && python scrapeTeams.py && python parseTeam.py"
   },
   "repository": {
