@@ -6,6 +6,7 @@ import numpy as np
 from ComparisonFunctions.CompareFunction import CompareFunction
 from ComparisonFunctions.utils import getStarters
 
+
 def compareTeams(team1name, team2name, data):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -18,9 +19,10 @@ def compareTeams(team1name, team2name, data):
     model.load_weights("best.hdf5")
     prediction = model.predict(np.expand_dims(input_list, axis=0))[0][0]
     keras.backend.clear_session()
+    odds = round(max(prediction, 1 - prediction) * 1000) / 1000
     if prediction > 0.5:
-        return 0, 1, round(max(prediction, 1 - prediction) * 1000) / 1000
-    return 1, 0, round(max(prediction, 1 - prediction) * 1000) / 1000
+        return 0, 1, odds
+    return 1, 0, odds
 
 
-comparison = CompareFunction(wantHighest=True, comparison=compareTeams)
+comparison = CompareFunction(wantHighest=True, comparison=compareTeams, isolated=False, symmetric=False)

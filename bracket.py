@@ -1,9 +1,9 @@
 import json
-import compareFns
 import numpy as np
 import copy
 import math
 from ComparisonFunctions import CompareFunction
+from ComparisonFunctions.efficiencyWithSOS import comparison
 
 
 def mapOdds(chance):
@@ -74,7 +74,7 @@ def buildTeam(teamData, compareFunction):
         }
 
 
-def buildInitialBracket(compareFunction=compareFns.efficiencyMarginWithSOS, assigned=[]):
+def buildInitialBracket(compareFunction=comparison, assigned=[]):
     print(assigned)
     with open("bracketology.json") as f:
         bracket = json.load(f)

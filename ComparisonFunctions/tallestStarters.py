@@ -6,8 +6,8 @@ from ComparisonFunctions.utils import getStarters
 
 def compareTeams(team, data):
     starters = getStarters(data[team]["players"])
-    weights = list(map(lambda x: x["weight"], starters))
-    score = mean(weights)
+    heights = list(map(lambda x: x["height"], starters))
+    score = max(heights)
     return score
 
 

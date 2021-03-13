@@ -47,7 +47,6 @@ def fixName(t, all_names):
         t = replace(t)
     return t
 
-
 def getStarters(players):
     player_stats = list(players.values())
     player_stats.sort(key=lambda x: x.get("minutes", 0), reverse=True)
